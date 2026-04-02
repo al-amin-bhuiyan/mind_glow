@@ -19,4 +19,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueText => 'Continue';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get subscription => 'Subscription';
+
+  @override
+  String get notification => 'Notification';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get security => 'Security';
+
+  @override
+  String get supportAndHelp => 'Support & Help';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get logOut => 'Log Out';
 }

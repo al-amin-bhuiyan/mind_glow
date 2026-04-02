@@ -19,4 +19,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get continueText => 'متابعة';
+
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get subscription => 'الاشتراك';
+
+  @override
+  String get notification => 'الإشعارات';
+
+  @override
+  String get language => 'اللغة';
+
+  @override
+  String get security => 'الأمان';
+
+  @override
+  String get supportAndHelp => 'الدعم والمساعدة';
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get logOut => 'تسجيل الخروج';
 }

@@ -3,5 +3,13 @@
   "home": "Accueil",
   "profile": "Profil",
   "settings": "Paramètres",
-  "continueText": "Continuer"
+  "continueText": "Continuer",
+  "editProfile": "Modifier le profil",
+  "subscription": "Abonnement",
+  "notification": "Notification",
+  "language": "Langue",
+  "security": "Sécurité",
+  "supportAndHelp": "Support et aide",
+  "logout": "Déconnexion",
+  "logOut": "Se déconnecter"
 }

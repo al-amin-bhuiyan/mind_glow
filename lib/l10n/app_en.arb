@@ -3,5 +3,13 @@
   "home": "Home",
   "profile": "Profile",
   "settings": "Settings",
-  "continueText": "Continue"
+  "continueText": "Continue",
+  "editProfile": "Edit Profile",
+  "subscription": "Subscription",
+  "notification": "Notification",
+  "language": "Language",
+  "security": "Security",
+  "supportAndHelp": "Support & Help",
+  "logout": "Logout",
+  "logOut": "Log Out"
 }

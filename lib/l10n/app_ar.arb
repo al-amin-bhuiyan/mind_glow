@@ -3,5 +3,13 @@
   "home": "الصفحة الرئيسية",
   "profile": "الملف الشخصي",
   "settings": "الإعدادات",
-  "continueText": "متابعة"
+  "continueText": "متابعة",
+  "editProfile": "تعديل الملف الشخصي",
+  "subscription": "الاشتراك",
+  "notification": "الإشعارات",
+  "language": "اللغة",
+  "security": "الأمان",
+  "supportAndHelp": "الدعم والمساعدة",
+  "logout": "تسجيل الخروج",
+  "logOut": "تسجيل الخروج"
 }

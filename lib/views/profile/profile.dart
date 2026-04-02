@@ -7,6 +7,7 @@ import '../../utils/app_fonts.dart';
 import '../../widgets/custom_assets.dart';
 import '../../widgets/custom_back_button.dart';
 import '../../controllers/localization_controller/localization_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Profile Screen - User profile with settings and options
 class ProfileScreen extends StatelessWidget {
@@ -38,8 +39,6 @@ class ProfileScreen extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 26.w),
                     child: Column(
                       children: [
-                        //  SizedBox(height: 16.h),
-
                         // Profile Header
                         _buildProfileHeader(controller),
 
@@ -51,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                         SizedBox(height: 16.h),
 
                         // Language Section
-                        _buildLanguageSection(),
+                        _buildLanguageSection(context),
 
                         SizedBox(height: 16.h),
 
@@ -62,8 +61,6 @@ class ProfileScreen extends StatelessWidget {
 
                         // Logout Button
                         _buildLogoutButton(controller, context),
-
-                        // SizedBox(height: 24.h),
                       ],
                     ),
                   ),
@@ -96,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Profile',
+                AppLocalizations.of(context)!.profile, 
                 textAlign: TextAlign.center,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 18.sp,
@@ -143,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
 
             SizedBox(width: 12.w),
 
-            // Name and Email
+            // Name and Email (Dynamic Data stays normal)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -185,7 +182,7 @@ class ProfileScreen extends StatelessWidget {
           // Edit Profile
           _buildMenuItem(
             icon: CustomAssets.edit_profile_svg,
-            title: 'Edit Profile',
+            title: AppLocalizations.of(context)!.editProfile, 
             onTap: () => controller.onEditProfileTap(context),
             showBorder: true,
           ),
@@ -193,7 +190,7 @@ class ProfileScreen extends StatelessWidget {
           // Subscription
           _buildMenuItem(
             icon: CustomAssets.subscription_svg,
-            title: 'Subscription',
+            title: AppLocalizations.of(context)!.subscription, 
             onTap: () => controller.onSubscriptionTap(context),
             showBorder: true,
           ),
@@ -201,7 +198,7 @@ class ProfileScreen extends StatelessWidget {
           // Notification
           _buildMenuItem(
             icon: CustomAssets.notification_svg,
-            title: 'Notification',
+            title: AppLocalizations.of(context)!.notification, 
             onTap: () => controller.onNotificationTap(context),
             showBorder: false,
           ),
@@ -224,7 +221,7 @@ class ProfileScreen extends StatelessWidget {
           // Security
           _buildMenuItem(
             icon: CustomAssets.security_svg,
-            title: 'Security',
+            title: AppLocalizations.of(context)!.security, 
             onTap: () => controller.onSecurityTap(context),
             showBorder: true,
           ),
@@ -232,7 +229,7 @@ class ProfileScreen extends StatelessWidget {
           // Support & Help
           _buildMenuItem(
             icon: CustomAssets.support_and_help_svg,
-            title: 'Support & Help',
+            title: AppLocalizations.of(context)!.supportAndHelp, 
             onTap: () => controller.onSupportHelpTap(context),
             showBorder: true,
           ),
@@ -240,7 +237,7 @@ class ProfileScreen extends StatelessWidget {
           // Logout
           _buildMenuItem(
             icon: CustomAssets.logout_svg,
-            title: 'Logout',
+            title: AppLocalizations.of(context)!.logout, 
             onTap: () => controller.onLogoutTap(context),
             showBorder: false,
           ),
@@ -250,7 +247,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   /// Build Language Section
-  Widget _buildLanguageSection() {
+  Widget _buildLanguageSection(BuildContext context) {
     final locController = Get.find<LocalizationController>();
     return Container(
       width: double.infinity,
@@ -265,7 +262,7 @@ class ProfileScreen extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(left: 12.w, bottom: 8.h),
             child: Text(
-              "Language",
+              AppLocalizations.of(context)!.language, 
               style: AppFonts.poppinsSemiBold(fontSize: 16.sp, color: Colors.black),
             ),
           ),
@@ -390,7 +387,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         child: Center(
           child: Text(
-            'Log Out',
+            AppLocalizations.of(context)!.logOut, 
             textAlign: TextAlign.center,
             style: AppFonts.poppinsMedium(
               fontSize: 16.sp,
