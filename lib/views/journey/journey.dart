@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../controllers/journey_controller/journey_controller.dart';
 import '../../utils/app_fonts.dart';
 import '../../widgets/custom_assets.dart';
 import '../../widgets/custom_nav_bar_widgets.dart';
-import 'widgets/filter_button.dart';
 import 'widgets/reflection_card.dart';
 import 'widgets/stats_section.dart';
 
@@ -77,7 +76,7 @@ class JourneyScreen extends StatelessWidget {
                             SizedBox(height: 10.h),
 
                             // Subtitle text
-                            _buildSubtitle(),
+                            _buildSubtitle(context),
 
                             SizedBox(height: 20.h),
 
@@ -87,7 +86,7 @@ class JourneyScreen extends StatelessWidget {
                             SizedBox(height: 20.h),
 
                             // Past reflections header with filter
-                            _buildPastReflectionsHeader(controller),
+                            _buildPastReflectionsHeader(context, controller),
 
                             SizedBox(height: 10.h),
 
@@ -97,7 +96,7 @@ class JourneyScreen extends StatelessWidget {
                             SizedBox(height: 20.h),
 
                             // Bottom note
-                            _buildBottomNote(),
+                            _buildBottomNote(context),
 
                             SizedBox(height: 100.h), // Space for nav bar
                           ],
@@ -165,7 +164,7 @@ class JourneyScreen extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Text(
-                  'Journey',
+                  AppLocalizations.of(context)!.journeyTabTitle,
                   textAlign: TextAlign.center,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
@@ -183,11 +182,11 @@ class JourneyScreen extends StatelessWidget {
   }
 
   /// Build subtitle text
-  Widget _buildSubtitle() {
+  Widget _buildSubtitle(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Text(
-        'A quiet space holding your reflections, just as you shared them.',
+        AppLocalizations.of(context)!.journeySubtitle,
         textAlign: TextAlign.center,
         style: TextStyle(
           color: const Color(0xFF78706B),
@@ -200,12 +199,12 @@ class JourneyScreen extends StatelessWidget {
   }
 
   /// Build past reflections header with filter button
-  Widget _buildPastReflectionsHeader(JourneyController controller) {
+  Widget _buildPastReflectionsHeader(BuildContext context, JourneyController controller) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Your past reflections',
+          AppLocalizations.of(context)!.pastReflections,
           style: AppFonts.poppinsSemiBold(
             fontSize: 18.sp,
             color: const Color(0xFF1E1E1E),
@@ -234,11 +233,11 @@ class JourneyScreen extends StatelessWidget {
   }
 
   /// Build bottom note text
-  Widget _buildBottomNote() {
+  Widget _buildBottomNote(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Text(
-        'You can return to any reflection whenever it feels right.',
+        AppLocalizations.of(context)!.returnToReflectionNote,
         style: TextStyle(
           color: const Color(0xFF78706B),
           fontSize: 13.sp,

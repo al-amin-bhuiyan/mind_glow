@@ -3,6 +3,10 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../routes/app_path.dart';
 import '../../views/profile/widgets/logout_dialog.dart';
+import '../../services/auth_state_service.dart';
+import '../../services/token_storage_service.dart';
+import '../../services/session_data_isolation_service.dart';
+import '../../widgets/custom_snackbar.dart';
 
 /// Controller for Profile Screen - handles profile actions and navigation
 class ProfileController extends GetxController {
@@ -100,12 +104,28 @@ class ProfileController extends GetxController {
   }
 
   /// Handle logout confirmation
-  void _handleLogout(BuildContext context) {
+  Future<void> _handleLogout(BuildContext context) async {
     // Close the dialog
     Navigator.of(context).pop();
 
-    // Navigate to login screen using GoRouter
-    context.go(AppPath.login);
+    try {
+      debugPrint('🚀 Starting logout process');
+      await TokenStorageService.instance.clearAll();
+      SessionDataIsolationService.instance.clearUserScopedState();
+      AuthStateService.instance.setUnauthenticated();
+      debugPrint('✅ Logout successful');
+
+      // Navigate to login screen using GoRouter
+      if (context.mounted) context.go(AppPath.login);
+    } catch (e) {
+      debugPrint('❌ Logout failed: $e');
+      if (context.mounted) {
+        CustomSnackBar.showError(
+          context,
+          message: 'Logout failed. Please try again.',
+        );
+      }
+    }
   }
 
   /// Handle back button press

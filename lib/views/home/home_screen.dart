@@ -57,13 +57,13 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // SizedBox(height: 10.h),
-                        _buildGreeting(controller),
+                        _buildGreeting(controller, context),
                         SizedBox(height: 16.h),
                         _buildReflectionCard(controller,context),
                         SizedBox(height: 24.h),
                         _buildQuestionCard(controller,context),
                         SizedBox(height: 24.h),
-                        _buildJourneyCard(),
+                        _buildJourneyCard(controller, context),
                         SizedBox(height: 100.h), // Space for nav bar
                       ],
                     ),
@@ -125,12 +125,12 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Build greeting section
-  Widget _buildGreeting(HomeController controller) {
+  Widget _buildGreeting(HomeController controller, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Obx(() => Text(
-          'Good Morning ${controller.userName.value},',
+          AppLocalizations.of(context)!.goodMorning(controller.userName.value),
           style: AppFonts.poppinsMedium(
             fontSize: 18.sp,
             color: const Color(0xFF292423),
@@ -138,7 +138,7 @@ class HomeScreen extends StatelessWidget {
         )),
         SizedBox(height: 2.h),
         Text(
-          'A quiet space for reflection awaits you.',
+          AppLocalizations.of(context)!.quietSpaceAwaits,
           style: TextStyle(
             color: const Color(0xFF78706B),
             fontSize: 14.sp,
@@ -179,7 +179,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What feels present right now?',
+            AppLocalizations.of(context)!.whatFeelsPresent,
             style: AppFonts.poppinsSemiBold(
               fontSize: 20.sp,
               color: const Color(0xFF1E1E1E),
@@ -187,7 +187,7 @@ class HomeScreen extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           CustomButton(
-            label: 'Start Reflections>',
+            label: AppLocalizations.of(context)!.startReflections,
             onPressed:()=> controller.onStartReflections(context),
             height: 44.h,
             textStyle: TextStyle(
@@ -232,7 +232,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'A question you may wish to reflect on',
+            AppLocalizations.of(context)!.questionToReflect,
             style: AppFonts.poppinsMedium(
               fontSize: 16.sp,
               color: const Color(0xFF1E1E1E),
@@ -240,7 +240,7 @@ class HomeScreen extends StatelessWidget {
           ),
           SizedBox(height: 8.h),
           Text(
-            'When was the last time you felt truly confident — and what felt different in that moment?',
+            AppLocalizations.of(context)!.reflectionQuestion,
             style: TextStyle(
               color: Colors.black.withValues(alpha: 0.60),
               fontSize: 14.sp,
@@ -250,7 +250,7 @@ class HomeScreen extends StatelessWidget {
           ),
           SizedBox(height: 20.h),
           CustomButton(
-            label: 'Start Session>',
+            label: AppLocalizations.of(context)!.startSession,
             onPressed:()=> controller.onStartSession(context),
             height: 44.h,
             textStyle: TextStyle(
@@ -267,7 +267,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Build journey card with stats
-  Widget _buildJourneyCard() {
+  Widget _buildJourneyCard(HomeController controller, BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
@@ -295,7 +295,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your journey so far',
+            AppLocalizations.of(context)!.journeySoFar,
             style: TextStyle(
               color: const Color(0xFF1E1E1E),
               fontSize: 16.sp,
@@ -305,35 +305,35 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 9.h),
-          _buildJourneyStats(),
+          _buildJourneyStats(controller, context),
           SizedBox(height: 16.h),
-          _buildInspirationCard(),
+          _buildInspirationCard(controller, context),
         ],
       ),
     );
   }
 
   /// Build journey stats row
-  Widget _buildJourneyStats() {
-    return Row(
+  Widget _buildJourneyStats(HomeController controller, BuildContext context) {
+    return Obx(() => Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _buildStatItem(
           icon: CustomAssets.seven_reflections_written,
-          text: '7 reflections\nwritten',
+          text: '${controller.reflectionsCount.value} reflections\nwritten',
         ),
         SizedBox(width: 16.w),
         _buildStatItem(
           icon: CustomAssets.three_themes_explored,
-          text: '3 themes\nexplored',
+          text: '${controller.learningsCount.value} themes\nexplored',
         ),
         SizedBox(width: 16.w),
         _buildStatItem(
           icon: CustomAssets.reflected_over_6_days,
-          text: 'Reflected\nover 6 days',
+          text: 'Reflected\nover ${controller.activeReflectionDays.value} days',
         ),
       ],
-    );
+    ));
   }
 
   /// Build individual stat item
@@ -371,7 +371,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Build inspiration card
-  Widget _buildInspirationCard() {
+  Widget _buildInspirationCard(HomeController controller, BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.all(16.w),
@@ -399,7 +399,7 @@ class HomeScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'A quiet inspiration',
+            AppLocalizations.of(context)!.quietInspiration,
             style: TextStyle(
               color: const Color(0xFF1E1E1E),
               fontSize: 16.sp,
@@ -411,19 +411,42 @@ class HomeScreen extends StatelessWidget {
           SizedBox(height: 8.h),
           SizedBox(
             width: 286.w,
-            child: Text(
-              'Growth begins when we notice what we usually overlook. Shown based on your preferences.',
-              style: TextStyle(
-                color: Colors.black.withValues(alpha: 0.60),
-                fontSize: 14.sp,
-                fontFamily: 'Manrope',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
+            child: Obx(() => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  controller.dailyQuote.value.isEmpty 
+                    ? AppLocalizations.of(context)!.growthBeginsText
+                    : controller.dailyQuote.value,
+                  style: TextStyle(
+                    color: Colors.black.withValues(alpha: 0.60),
+                    fontSize: 14.sp,
+                    fontFamily: 'Manrope',
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                if (controller.dailyQuote.value.isNotEmpty && controller.quoteAuthor.value.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "- ${controller.quoteAuthor.value}",
+                        style: TextStyle(
+                          color: const Color(0xFF1E1E1E).withValues(alpha: 0.8),
+                          fontSize: 12.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            )),
           ),
         ],
       ),
     );
   }
 }
-

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../../../controllers/inspire_controller/inspire_controller.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../widgets/custom_assets.dart';
@@ -69,7 +69,7 @@ class InspirationCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        inspiration.typeLabel,
+                        _getLocalized(context, inspiration.typeLabel),
                         textAlign: TextAlign.center,
                         style: AppFonts.manropeRegular(
                           fontSize: 9.sp,
@@ -96,7 +96,7 @@ class InspirationCard extends StatelessWidget {
 
                 // Title text
                 Text(
-                  inspiration.title,
+                  _getLocalized(context, inspiration.title),
                   style: AppFonts.manropeRegular(
                     fontSize: 13.sp,
                     color: const Color(0xFF1E1E1E),
@@ -112,7 +112,7 @@ class InspirationCard extends StatelessWidget {
           SizedBox(
             width: 165.w,
             child: Text(
-              inspiration.savedContext,
+              _getLocalized(context, inspiration.savedContext),
               style: AppFonts.manropeMedium(
                 fontSize: 9.sp,
                 color: const Color(0xFF78706B),
@@ -123,5 +123,18 @@ class InspirationCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getLocalized(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch(key) {
+      case 'typeQuote': return l10n.typeQuote;
+      case 'typeRoleModels': return l10n.typeRoleModels;
+      case 'mockInspireTitle': return l10n.mockInspireTitle;
+      case 'mockContextPatience': return l10n.mockContextPatience;
+      case 'mockContextQuiet': return l10n.mockContextQuiet;
+      case 'mockContextAcceptance': return l10n.mockContextAcceptance;
+      default: return key;
+    }
   }
 }

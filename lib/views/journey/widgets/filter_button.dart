@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../controllers/journey_controller/journey_controller.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_fonts.dart';
@@ -34,7 +35,7 @@ class FilterButton extends StatelessWidget {
           children: [
             // Filter text
             Text(
-              'Filter',
+              AppLocalizations.of(context)!.filterText,
               style: AppFonts.interMedium(
                 fontSize: 12,
                 color: const Color(0xFF1E1E1E),
@@ -55,7 +56,7 @@ class FilterButton extends StatelessWidget {
             // Selected filter text
             Obx(
                   () => Text(
-                controller.selectedFilter.value,
+                _getTranslatedOption(context, controller.selectedFilter.value),
                 style: AppFonts.interSemiBold(
                   fontSize: 12,
                   color: AppColors.googlebuttonColor,
@@ -76,6 +77,16 @@ class FilterButton extends StatelessWidget {
       isScrollControlled: true,
       builder: (context) => _FilterBottomSheet(controller: controller),
     );
+  }
+
+  String _getTranslatedOption(BuildContext context, String optionKey) {
+     final l10n = AppLocalizations.of(context)!;
+     switch(optionKey) {
+       case 'filterAll': return l10n.filterAll;
+       case 'filterByTheme': return l10n.filterByTheme;
+       case 'filterByTime': return l10n.filterByTime;
+       default: return optionKey;
+     }
   }
 }
 
@@ -102,7 +113,7 @@ class _FilterBottomSheet extends StatelessWidget {
         children: [
           // Title
           Text(
-            'Filter by',
+            AppLocalizations.of(context)!.filterByTitle,
             style: AppFonts.poppinsSemiBold(
               fontSize: 18.sp,
               color: AppColors.blackColor,
@@ -136,7 +147,7 @@ class _FilterBottomSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  option,
+                  _getTranslatedOption(context, option),
                   style: AppFonts.interMedium(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -154,5 +165,15 @@ class _FilterBottomSheet extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getTranslatedOption(BuildContext context, String optionKey) {
+     final l10n = AppLocalizations.of(context)!;
+     switch(optionKey) {
+       case 'filterAll': return l10n.filterAll;
+       case 'filterByTheme': return l10n.filterByTheme;
+       case 'filterByTime': return l10n.filterByTime;
+       default: return optionKey;
+     }
   }
 }

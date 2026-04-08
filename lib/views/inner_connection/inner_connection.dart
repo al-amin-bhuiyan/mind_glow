@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import 'package:mind_glow/views/inner_connection/widgets/other_option_dialog.dart';
 import '../../../controllers/inner_connection_controller/inner_connection_controller.dart';
 import '../../../utils/app_fonts.dart';
@@ -10,6 +11,56 @@ import '../../../widgets/custom_assets.dart';
 import '../../../widgets/custom_back_button.dart';
 import '../../widgets/custom_button.dart';
 
+String _getTranslatedOption(BuildContext context, String option) {
+  final loc = AppLocalizations.of(context)!;
+  switch(option) {
+    case 'She/Her': return loc.optSheHer;
+    case 'He/Him': return loc.optHeHim;
+    case 'Not to say': return loc.optNotToSay;
+    case 'Under 18 years': return loc.optUnder18;
+    case '18-24': return loc.opt18_24;
+    case '25-34': return loc.opt25_34;
+    case '35-44': return loc.opt35_44;
+    case '45-64': return loc.opt45_64;
+    case '65+': return loc.opt65Plus;
+    case 'Single': return loc.optSingle;
+    case 'Married': return loc.optMarried;
+    case 'In a Relationship': return loc.optInRelationship;
+    case 'Separated / Divorced': return loc.optSeparatedDivorced;
+    case 'Widowed': return loc.optWidowed;
+    case 'Student': return loc.optStudent;
+    case 'Working professional': return loc.optWorkingProfessional;
+    case 'Parent / caregiver': return loc.optParentCaregiver;
+    case 'Self-employed / Building something': return loc.optSelfEmployed;
+    case 'Retired': return loc.optRetired;
+    case 'Busy / overwhelming': return loc.optBusyOverwhelming;
+    case 'Stable but heavy': return loc.optStableHeavy;
+    case 'Balanced': return loc.optBalanced;
+    case 'Uncertain': return loc.optUncertain;
+    case 'Mindfulness': return loc.optMindfulness;
+    case 'Quiet but disconnected': return loc.optQuietDisconnected;
+    case 'Christianity': return loc.optChristianity;
+    case 'Islam': return loc.optIslam;
+    case 'Judaism': return loc.optJudaism;
+    case 'Buddhism': return loc.optBuddhism;
+    case 'Hinduism': return loc.optHinduism;
+    case 'Another faith or spiritual path': return loc.optAnotherFaith;
+    case 'I prefer non-religious inspiration': return loc.optNonReligious;
+    case 'Sacred or spiritual texts': return loc.optSacredTexts;
+    case 'Spiritual teachers or scholars': return loc.optSpiritualTeachers;
+    case 'Public figures or role models': return loc.optPublicFigures;
+    case 'Writers or books': return loc.optWritersBooks;
+    case 'Artists, creators, or influencers': return loc.optArtistsCreators;
+    case 'Name specific people, books, or voices': return loc.optNameSpecific;
+    case 'Something I\'ve been carrying': return loc.optSomethingCarrying;
+    case 'A feeling I don\'t fully understand': return loc.optFeelingNotUnderstand;
+    case 'A situation in my life': return loc.optSituationInLife;
+    case 'A pattern I\'ve noticed': return loc.optPatternNoticed;
+    case 'I don\'t know yet €” I just want space': return loc.optDontKnowWantSpace;
+    case 'Other': return loc.optOther;
+    default: return option;
+  }
+}
 
 /// Inner Connection Screen - 8 pages questionnaire
 class InnerConnectionScreen extends StatelessWidget {
@@ -41,46 +92,40 @@ class InnerConnectionScreen extends StatelessWidget {
                       Row(
                         children: [
                           // Back button
-                          Obx(() => Container(
+                          Container(
+                            width: 30.w,
+                            height: 30.h,
+                            child: CustomBackButton(
+                              onPressed: () {
+                                final currentPageValue = controller.currentPage.value;
+                                if (currentPageValue == 0) {
+                                  context.pop();
+                                } else {
+                                  controller.previousPage();
+                                }
+                              },
                               width: 30.w,
                               height: 30.h,
-                              child: CustomBackButton(
-                                onPressed: () {
-                                  final currentPageValue = controller.currentPage.value;
-                                  if (currentPageValue == 0) {
-                                    context.pop();
-                                  } else {
-                                    controller.previousPage();
-                                  }
-                                },
-                                width: 30,
-                                height: 30,
-                                backgroundColor: Colors.black.withValues(alpha: 0.19),
-                                borderRadius: 100,
-                                color: const Color(0xFF2D2D2D),
-                                size: 24,
-                                border: Border.all(
-                                  color: const Color(0xFFE0E0E0),
-                                  width: 1,
-                                ),
+                              backgroundColor: Colors.black.withValues(alpha: 0.19),
+                              borderRadius: 100.r,
+                              color: const Color(0xFF2D2D2D),
+                              size: 24.sp,
+                              border: Border.all(
+                                color: const Color(0xFFE0E0E0),
+                                width: 1.w,
                               ),
                             ),
                           ),
                           // Progress indicator (show only for pages 0-7)
                           Obx(() => controller.currentPage.value <= 7
                               ? Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 117.w),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    '${controller.currentPage.value + 1}/8',
-                                    style: AppFonts.poppinsSemiBold(
-                                      fontSize: 18.sp,
-                                      color: const Color(0xFF2D2D2D),
-                                    ),
-                                  ),
-                                ],
+                            child: Center(
+                              child: Text(
+                                '${controller.currentPage.value + 1}/8',
+                                style: AppFonts.poppinsSemiBold(
+                                  fontSize: 18.sp,
+                                  color: const Color(0xFF2D2D2D),
+                                ),
                               ),
                             ),
                           )
@@ -164,7 +209,7 @@ class FullNamePage extends StatelessWidget {
               children: [
                 SizedBox(height: 10.h),
                 Text(
-                  "A moment to notice",
+                  AppLocalizations.of(context)!.aMomentToNotice,
                   style: AppFonts.poppinsMedium(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -180,41 +225,41 @@ class FullNamePage extends StatelessWidget {
                     color: const Color(0xFF1E1E1E),
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Full Name',
+                    labelText: AppLocalizations.of(context)!.fullNameLabel,
                     labelStyle: AppFonts.poppinsRegular(
                       fontSize: 12.sp,
                       color: const Color(0xFF80869A),
                     ),
-                    hintText: 'Your Name',
+                    hintText: AppLocalizations.of(context)!.yourNameHint,
                     hintStyle: AppFonts.poppinsRegular(
                       fontSize: 16.sp,
                       color: const Color(0xFFCCCCCC),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.r),
-                      borderSide: const BorderSide(
-                        width: 1,
-                        color: Color(0xFF80869A),
+                      borderSide: BorderSide(
+                        width: 1.w,
+                        color: const Color(0xFF80869A),
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.r),
-                      borderSide: const BorderSide(
-                        width: 1.5,
-                        color: Color(0xFF80869A),
+                      borderSide: BorderSide(
+                        width: 1.5.w,
+                        color: const Color(0xFF80869A),
                       ),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.r),
-                      borderSide: const BorderSide(
-                        width: 1,
+                      borderSide: BorderSide(
+                        width: 1.w,
                         color: Colors.red,
                       ),
                     ),
                     focusedErrorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30.r),
-                      borderSide: const BorderSide(
-                        width: 1.5,
+                      borderSide: BorderSide(
+                        width: 1.5.w,
                         color: Colors.red,
                       ),
                     ),
@@ -231,12 +276,15 @@ class FullNamePage extends StatelessWidget {
                   children: controller.pronounOptions.map((pronoun) {
                     return Obx(() {
                       final isSelected = controller.selectedPronoun.value == pronoun;
-                      return Padding(
-                        padding: EdgeInsets.only(right: 12.w),
-                        child: _PronounButton(
-                          text: pronoun,
-                          isSelected: isSelected,
-                          onTap: () => controller.selectPronoun(pronoun),
+                      return Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 12.w),
+                          child: _PronounButton(
+                            text: _getTranslatedOption(context, pronoun),
+                            isSelected: isSelected,
+                            onTap: () => controller.selectPronoun(pronoun),
+                          ),
                         ),
                       );
                     });
@@ -244,13 +292,13 @@ class FullNamePage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -280,7 +328,7 @@ class AgeRangePage extends StatelessWidget {
         children: [
           SizedBox(height: 20.h),
           Text(
-            'Which age range feels closest to you?',
+            AppLocalizations.of(context)!.ageRangeQuestion,
             style: AppFonts.poppinsSemiBold(
               fontSize: 18.sp,
               color: const Color(0xFF2D2D2D),
@@ -293,7 +341,7 @@ class AgeRangePage extends StatelessWidget {
               return Obx(() {
                 final isSelected = controller.selectedAgeRange.value == option;
                 return _OptionButton(
-                  text: option,
+                  text: _getTranslatedOption(context, option),
                   isSelected: isSelected,
                   onTap: () => controller.selectAgeRange(option),
                 );
@@ -302,13 +350,13 @@ class AgeRangePage extends StatelessWidget {
           ),
           Spacer(),
           Obx(() => CustomButton(
-            label: 'Continue >',
+            label: AppLocalizations.of(context)!.continueBtn,
             onPressed: controller.canContinue() ? controller.nextPage : null,
             enabled: controller.canContinue(),
           )),
           SizedBox(height: 21.h),
           Text(
-            'Powered by The Reflectly Method.',
+            AppLocalizations.of(context)!.poweredByReflectly,
             style: AppFonts.poppinsRegular(
               fontSize: 12.sp,
               color: const Color(0xFF999999),
@@ -344,7 +392,7 @@ class LifeSituationPage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  'Which best describes your current life situation?',
+                  AppLocalizations.of(context)!.lifeSituationQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
                     color: const Color(0xFF2D2D2D),
@@ -357,13 +405,13 @@ class LifeSituationPage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedLifeSituation.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () async {
                           if (option == 'Other') {
                             final customValue = await showOtherOptionDialog(
                               context: context,
-                              title: 'Which best describes your current life situation?',
+                              title: AppLocalizations.of(context)!.lifeSituationQuestion,
                               initialValue: controller.customLifeSituation.value,
                             );
                             controller.setCustomLifeSituation(customValue);
@@ -377,13 +425,13 @@ class LifeSituationPage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -422,7 +470,7 @@ class LifeStagePage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  'Which best describes where you are in life right now?',
+                  AppLocalizations.of(context)!.lifeStageQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
                     color: const Color(0xFF2D2D2D),
@@ -435,13 +483,13 @@ class LifeStagePage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedLifeStage.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () async {
                           if (option == 'Other') {
                             final customValue = await showOtherOptionDialog(
                               context: context,
-                              title: 'Which best describes where you are in life right now?',
+                              title: AppLocalizations.of(context)!.lifeStageQuestion,
                               initialValue: controller.customLifeStage.value,
                             );
                             controller.setCustomLifeStage(customValue);
@@ -455,13 +503,13 @@ class LifeStagePage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -500,7 +548,7 @@ class LifeFeelingPage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  "A space to explore",
+                  AppLocalizations.of(context)!.aSpaceToExplore,
                   style: AppFonts.poppinsRegular(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -508,7 +556,7 @@ class LifeFeelingPage extends StatelessWidget {
                 ),
                 SizedBox(height: 29.h),
                 Text(
-                  'Overall, your life feels mostly...',
+                  AppLocalizations.of(context)!.lifeFeelingQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
                     color: const Color(0xFF2D2D2D),
@@ -521,13 +569,13 @@ class LifeFeelingPage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedLifeFeeling.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () async {
                           if (option == 'Other') {
                             final customValue = await showOtherOptionDialog(
                               context: context,
-                              title: 'How would you describe the pace or mood of your life right now?',
+                              title: AppLocalizations.of(context)!.lifeFeelingQuestion,
                               initialValue: controller.customLifeFeeling.value,
                             );
                             controller.setCustomLifeFeeling(customValue);
@@ -541,13 +589,13 @@ class LifeFeelingPage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -586,7 +634,7 @@ class FaithPage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  "An idea to sit with",
+                  AppLocalizations.of(context)!.anIdeaToSitWith,
                   style: AppFonts.poppinsRegular(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -594,7 +642,7 @@ class FaithPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  'Does faith, spirituality, or belief play a role in your life?',
+                  AppLocalizations.of(context)!.faithQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 16.sp,
                     color: const Color(0xFF2D2D2D),
@@ -607,13 +655,13 @@ class FaithPage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedFaith.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () async {
                           if (option == 'Other') {
                             final customValue = await showOtherOptionDialog(
                               context: context,
-                              title: 'Do you hold a particular faith or spiritual path?',
+                              title: AppLocalizations.of(context)!.faithQuestion,
                               initialValue: controller.customFaith.value,
                             );
                             controller.setCustomFaith(customValue);
@@ -627,13 +675,13 @@ class FaithPage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -672,7 +720,7 @@ class InspirationSourcePage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  "An idea to sit with",
+                  AppLocalizations.of(context)!.anIdeaToSitWith,
                   style: AppFonts.poppinsRegular(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -680,7 +728,7 @@ class InspirationSourcePage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  'What voices or sources feel most inspiring or grounding to you?',
+                  AppLocalizations.of(context)!.inspirationQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
                     color: const Color(0xFF2D2D2D),
@@ -693,7 +741,7 @@ class InspirationSourcePage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedInspirationSource.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () => controller.selectInspirationSource(option),
                       );
@@ -702,13 +750,13 @@ class InspirationSourcePage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Continue >',
+                  label: AppLocalizations.of(context)!.continueBtn,
                   onPressed: controller.canContinue() ? controller.nextPage : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -747,7 +795,7 @@ class AttentionAreaPage extends StatelessWidget {
               children: [
                 SizedBox(height: 20.h),
                 Text(
-                  "An idea to sit with",
+                  AppLocalizations.of(context)!.anIdeaToSitWith,
                   style: AppFonts.poppinsRegular(
                     fontSize: 14.sp,
                     color: AppColors.blackColor,
@@ -755,7 +803,7 @@ class AttentionAreaPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.h),
                 Text(
-                  'What would you like to give attention to today?',
+                  AppLocalizations.of(context)!.attentionQuestion,
                   style: AppFonts.poppinsSemiBold(
                     fontSize: 18.sp,
                     color: const Color(0xFF2D2D2D),
@@ -768,13 +816,13 @@ class AttentionAreaPage extends StatelessWidget {
                     return Obx(() {
                       final isSelected = controller.selectedAttentionArea.value == option;
                       return _OptionButton(
-                        text: option,
+                        text: _getTranslatedOption(context, option),
                         isSelected: isSelected,
                         onTap: () async {
                           if (option == 'Other') {
                             final customValue = await showOtherOptionDialog(
                               context: context,
-                              title: 'What would you like to give attention to today?',
+                              title: AppLocalizations.of(context)!.attentionQuestion,
                               initialValue: controller.customAttentionArea.value,
                             );
                             controller.setCustomAttentionArea(customValue);
@@ -788,17 +836,18 @@ class AttentionAreaPage extends StatelessWidget {
                 ),
                 const Spacer(),
                 Obx(() => CustomButton(
-                  label: 'Finish',
+                  label: AppLocalizations.of(context)!.finishBtn,
+                  isLoading: controller.isLoading.value,
                   onPressed: controller.canContinue()
                       ? () => controller.nextPage(
-                    onComplete: () => context.go('/home'),
-                  )
+                            onComplete: () => context.go('/home'),
+                          )
                       : null,
                   enabled: controller.canContinue(),
                 )),
                 SizedBox(height: 25.h),
                 Text(
-                  'Powered by The Reflectly Method.',
+                  AppLocalizations.of(context)!.poweredByReflectly,
                   style: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
                     color: const Color(0xFF999999),
@@ -839,7 +888,7 @@ class _OptionButton extends StatelessWidget {
             color: isSelected ? const Color(0x66C3A95F) : const Color(0x33C3A99F),
             shape: RoundedRectangleBorder(
               side: BorderSide(
-                width: 1,
+                width: 1.w,
                 color: isSelected ? const Color(0xFFC3A95E) : const Color(0x66C3A95E),
               ),
               borderRadius: BorderRadius.circular(100.r),
@@ -882,7 +931,7 @@ class _PronounButton extends StatelessWidget {
           color: isSelected ? const Color(0x66C3A95F) : const Color(0x33C3A99F),
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              width: 1,
+              width: 1.w,
               color: isSelected ? const Color(0xFFC3A95E) : const Color(0x66C3A95E),
             ),
             borderRadius: BorderRadius.circular(100.r),

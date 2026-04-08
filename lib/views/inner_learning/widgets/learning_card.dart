@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../models/learning_model.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../widgets/custom_assets.dart';
@@ -99,7 +100,7 @@ class LearningCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${learning.date} :- ${learning.title}',
+                    '${learning.date.isNotEmpty ? learning.date : _getLocalized(context, learning.date)} :- ${learning.title.isNotEmpty ? _getLocalized(context, learning.title) : _getLocalized(context, learning.title)}',
                     style: AppFonts.poppinsSemiBold(
                       fontSize: 14.sp,
                       color: const Color(0xFF1E1E1E),
@@ -108,7 +109,11 @@ class LearningCard extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   Text(
-                    learning.description,
+                    learning.description.isNotEmpty 
+                        ? learning.description.replaceAll('\n', ' ')
+                        : _getLocalized(context, learning.description),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: AppFonts.manropeRegular(
                       fontSize: 12.sp,
                       color: const Color(0xFF1E1E1E),
@@ -121,5 +126,25 @@ class LearningCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getLocalized(BuildContext context, String key) {
+     final l10n = AppLocalizations.of(context)!;
+     switch(key) {
+       case 'april12': return l10n.april12;
+       case 'april11': return l10n.april11;
+       case 'april10': return l10n.april10;
+       case 'learnAboutRelationships': return l10n.learnAboutRelationships;
+       case 'learnAboutSelfReflection': return l10n.learnAboutSelfReflection;
+       case 'learnAboutSelfConfident': return l10n.learnAboutSelfConfident;
+       case 'learnAboutPatience': return l10n.learnAboutPatience;
+       case 'learnAboutGrowth': return l10n.learnAboutGrowth;
+       case 'mockDesc1': return l10n.mockDesc1;
+       case 'mockDesc2': return l10n.mockDesc2;
+       case 'mockDesc3': return l10n.mockDesc3;
+       case 'mockDescPatience': return l10n.mockDescPatience;
+       case 'mockDescGrowth': return l10n.mockDescGrowth;
+       default: return key;
+     }
   }
 }

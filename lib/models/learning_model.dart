@@ -12,11 +12,35 @@ class LearningModel {
   });
 
   factory LearningModel.fromJson(Map<String, dynamic> json) {
+    String formattedDate = '';
+    if (json['created_at'] != null) {
+      try {
+        final parsedDate = DateTime.parse(json['created_at'].toString());
+        final months = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ];
+        formattedDate = '${months[parsedDate.month - 1]} ${parsedDate.day}';
+      } catch (e) {
+        formattedDate = '';
+      }
+    }
+
     return LearningModel(
-      id: json['id'] ?? '',
-      date: json['date'] ?? '',
-      title: json['title'] ?? '',
-      description: json['description'] ?? '',
+      id: json['id']?.toString() ?? '',
+      date: formattedDate,
+      title: json['topic']?.toString() ?? '',
+      description: json['content']?.toString() ?? '',
     );
   }
 

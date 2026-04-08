@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/inner_learning_controller/inner_learning_controller.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../utils/app_fonts.dart';
@@ -55,7 +56,7 @@ class InnerLearningScreen extends StatelessWidget {
                     children: [
                       // Subtitle
                       Text(
-                        'What do you want to learn today?',
+                        AppLocalizations.of(context)!.whatToLearnToday,
                         textAlign: TextAlign.center,
                         style: AppFonts.manropeRegular(
                           fontSize: 14.sp,
@@ -128,7 +129,7 @@ class InnerLearningScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Inner Learning',
+            AppLocalizations.of(context)!.innerLearningTitle,
             textAlign: TextAlign.center,
             style: AppFonts.poppinsSemiBold(
               fontSize: 18.sp,
@@ -148,7 +149,7 @@ class InnerLearningScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your past Learnings',
+            AppLocalizations.of(context)!.yourPastLearnings,
             style: AppFonts.poppinsSemiBold(
               fontSize: 18.sp,
               color: const Color(0xFF1E1E1E),
@@ -179,7 +180,9 @@ class InnerLearningScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    controller.showAllLearnings.value ? 'See Less' : 'See More',
+                    controller.showAllLearnings.value 
+                        ? AppLocalizations.of(context)!.seeLess 
+                        : AppLocalizations.of(context)!.seeMore,
                     style: AppFonts.poppinsRegular(
                       fontSize: 14.sp,
                       color: Colors.black,
@@ -230,17 +233,17 @@ class InnerLearningScreen extends StatelessWidget {
       builder: (context) => Column(
         children: [
           SuggestionChip(
-            text: 'I want to learn about relationship.',
+            text: AppLocalizations.of(context)!.suggestionRelationship,
             onTap: () => controller.onSuggestionTap('relationship', context),
           ),
           SizedBox(height: 8.h),
           SuggestionChip(
-            text: 'I want to learn about self reflection.',
+            text: AppLocalizations.of(context)!.suggestionSelfReflection,
             onTap: () => controller.onSuggestionTap('self reflection', context),
           ),
           SizedBox(height: 8.h),
           SuggestionChip(
-            text: 'I want to learn about self confident.',
+            text: AppLocalizations.of(context)!.suggestionSelfConfident,
             onTap: () => controller.onSuggestionTap('self confident', context),
           ),
         ],
@@ -285,10 +288,10 @@ class InnerLearningScreen extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.99),
                 ),
                 decoration: InputDecoration(
-                  hintText: 'I want to learn about relationship',
+                  hintText: AppLocalizations.of(context)!.inputHintRelationship,
                   hintStyle: AppFonts.poppinsRegular(
                     fontSize: 12.sp,
-                    color: Colors.black.withValues(alpha: 0.60),
+                    color: Colors.black.withValues(alpha: 0.99),
                     height: 1.20,
                   ),
                   border: InputBorder.none,

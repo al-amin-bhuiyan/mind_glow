@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../controllers/journey_controller/journey_controller.dart';
 import '../../../widgets/custom_assets.dart';
 
@@ -30,13 +31,13 @@ class StatsSection extends StatelessWidget {
           BoxShadow(
             color: const Color(0x1A896D16),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: const Offset(0, 9),
             spreadRadius: 1,
           ),
           BoxShadow(
             color: const Color(0x0D896D16),
             blurRadius: 4,
-            offset: const Offset(0, 1),
+            offset: const Offset(0, 4),
             spreadRadius: 0,
           ),
         ],
@@ -48,7 +49,7 @@ class StatsSection extends StatelessWidget {
         children: [
           // Title
           Text(
-            'Your reflections so far',
+            AppLocalizations.of(context)!.yourReflectionsSoFar,
             style: TextStyle(
               color: const Color(0xFF1E1E1E),
               fontSize: 16.sp,
@@ -75,6 +76,12 @@ class StatsSection extends StatelessWidget {
                   ),
                   shadows: [
                     BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 9),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
                       color: const Color(0x33C3A95E).withValues(alpha: 0.35),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
@@ -90,19 +97,20 @@ class StatsSection extends StatelessWidget {
                     Obx(() => _StatItem(
                       icon: CustomAssets.seven_reflections_written,
                       count: controller.reflectionsCount.value,
-                      label: '7 reflections written',
+                      label: AppLocalizations.of(context)!.reflectionsWrittenStat(controller.reflectionsCount.value),
                     )),
                     SizedBox(width: 3.w),
                     Obx(() => _StatItem(
                       icon: CustomAssets.three_themes_explored,
                       count: controller.themesExploredCount.value,
-                      label: '3 themes explored',
+                      label: AppLocalizations.of(context)!.themesExploredStat(controller.themesExploredCount.value),
                     )),
+
                     SizedBox(width: 3.w),
                     Obx(() => _StatItem(
                       icon: CustomAssets.reflected_over_6_days,
                       count: controller.reflectedDaysCount.value,
-                      label: 'Reflected over 6 days',
+                      label: AppLocalizations.of(context)!.reflectedDaysStat(controller.reflectedDaysCount.value),
                     )),
                   ],
                 ),

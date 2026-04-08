@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import 'custom_assets.dart';
 
@@ -42,39 +43,33 @@ class CustomNavBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // ...existing code...
                   _NavBarItem(
                     icon: CustomAssets.home_nav_bar,
                     hoverIcon: CustomAssets.home_hovar_nav_bar,
-                    label: 'Home',
                     index: 0,
                     controller: controller,
                   ),
                   _NavBarItem(
                     icon: CustomAssets.reflect_nav_bar,
                     hoverIcon: CustomAssets.reflect_hovar_nav_bar,
-                    label: 'Reflect',
                     index: 1,
                     controller: controller,
                   ),
                   _NavBarItem(
                     icon: CustomAssets.journey_nav_bar,
                     hoverIcon: CustomAssets.journey_hovar_nav_bar,
-                    label: 'Journey',
                     index: 2,
                     controller: controller,
                   ),
                   _NavBarItem(
                     icon: CustomAssets.inspire_nav_bar,
                     hoverIcon: CustomAssets.inspire_hovar_nav_bar,
-                    label: 'Inspire',
                     index: 3,
                     controller: controller,
                   ),
                   _NavBarItem(
                     icon: CustomAssets.innerlearing_nav_bar,
                     hoverIcon: CustomAssets.innerlearing_hovar_nav_bar,
-                    label: 'Inner Learning',
                     index: 4,
                     controller: controller,
                   ),
@@ -93,20 +88,32 @@ class CustomNavBar extends StatelessWidget {
 class _NavBarItem extends StatelessWidget {
   final String icon;
   final String hoverIcon;
-  final String label;
   final int index;
   final CustomNavBarController controller;
 
   const _NavBarItem({
     required this.icon,
     required this.hoverIcon,
-    required this.label,
     required this.index,
     required this.controller,
   });
 
+  String _getLabel(BuildContext context, int index) {
+    final loc = AppLocalizations.of(context)!;
+    switch(index) {
+      case 0: return loc.home;
+      case 1: return loc.reflectTitle;
+      case 2: return loc.journeyTabTitle;
+      case 3: return loc.inspireTitle;
+      case 4: return loc.innerLearningTitle;
+      default: return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final label = _getLabel(context, index);
+    
     return Obx(
           () {
         final isSelected = controller.isSelected(index);

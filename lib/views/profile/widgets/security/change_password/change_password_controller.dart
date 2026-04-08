@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../../services/auth_service.dart';
+import '../../../../../../services/token_storage_service.dart';
+
 /// Change Password Controller - Manages password change functionality
 class ChangePasswordController extends GetxController {
+  // Dependencies
+  final AuthService _authService = AuthService.instance;
+
   // Text editing controllers
   final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
@@ -45,6 +51,8 @@ class ChangePasswordController extends GetxController {
         'Error',
         'Please enter your current password',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return false;
     }
@@ -54,6 +62,8 @@ class ChangePasswordController extends GetxController {
         'Error',
         'Please enter a new password',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return false;
     }
@@ -63,6 +73,8 @@ class ChangePasswordController extends GetxController {
         'Error',
         'Password must be at least 6 characters',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return false;
     }
@@ -72,6 +84,8 @@ class ChangePasswordController extends GetxController {
         'Error',
         'Please confirm your password',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return false;
     }
@@ -81,6 +95,8 @@ class ChangePasswordController extends GetxController {
         'Error',
         'Passwords do not match',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
       return false;
     }
@@ -95,27 +111,47 @@ class ChangePasswordController extends GetxController {
     isLoading.value = true;
 
     try {
-      // TODO: Implement API call to change password
-      await Future.delayed(const Duration(seconds: 2)); // Simulate API call
+      final token = await TokenStorageService.instance.getAccessToken();
 
-      Get.snackbar(
-        'Success',
-        'Password changed successfully',
-        snackPosition: SnackPosition.TOP,
+      final response = await _authService.changePassword(
+        oldPassword: currentPasswordController.text.trim(),
+        newPassword1: newPasswordController.text.trim(),
+        newPassword2: confirmPasswordController.text.trim(),
+        token: token,
       );
 
-      // Clear fields
-      currentPasswordController.clear();
-      newPasswordController.clear();
-      confirmPasswordController.clear();
+      if (response.success && response.data != null) {
+        Get.snackbar(
+          'Success',
+          response.data!.detail,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
 
-      // Navigate back
-      Get.back();
+        // Clear fields
+        currentPasswordController.clear();
+        newPasswordController.clear();
+        confirmPasswordController.clear();
+
+        // Navigate back
+        Get.back();
+      } else {
+        Get.snackbar(
+          'Error',
+          response.errorMessage ?? 'Failed to change password',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     } catch (e) {
       Get.snackbar(
         'Error',
         'Failed to change password: ${e.toString()}',
         snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     } finally {
       isLoading.value = false;

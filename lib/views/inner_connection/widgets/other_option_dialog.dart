@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:toastification/toastification.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_fonts.dart';
 
@@ -142,14 +142,14 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                     shadows: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 40,
-                        offset: const Offset(0, 10),
+                        blurRadius: 40.r,
+                        offset: Offset(0, 10.h),
                         spreadRadius: 0,
                       ),
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 4),
+                        blurRadius: 20.r,
+                        offset: Offset(0, 4.h),
                         spreadRadius: 0,
                       ),
                     ],
@@ -182,30 +182,30 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                                 : const Color(0xFF1E1E1E),
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Please specify...',
+                            hintText: AppLocalizations.of(context)!.pleaseSpecifyHint,
                             hintStyle: AppFonts.poppinsRegular(
                               fontSize: 14.sp,
                               color: const Color(0xFFCCCCCC),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                width: 1,
-                                color: Color(0xFF80869A),
+                              borderSide: BorderSide(
+                                width: 1.w,
+                                color: const Color(0xFF80869A),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.r),
                               borderSide: BorderSide(
-                                width: 1.5,
+                                width: 1.5.w,
                                 color: AppColors.googlebuttonColor,
                               ),
                             ),
                             disabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                width: 1,
-                                color: Color(0xFFE0E0E0),
+                              borderSide: BorderSide(
+                                width: 1.w,
+                                color: const Color(0xFFE0E0E0),
                               ),
                             ),
                             filled: _preferNotToSay.value,
@@ -246,7 +246,7 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                                       color: _preferNotToSay.value
                                           ? AppColors.googlebuttonColor
                                           : const Color(0xFF80869A),
-                                      width: 2,
+                                      width: 2.w,
                                     ),
                                   ),
                                   child: _preferNotToSay.value
@@ -259,7 +259,7 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                                 ),
                                 SizedBox(width: 12.w),
                                 Text(
-                                  'Prefer not to say',
+                                  AppLocalizations.of(context)!.preferNotToSay,
                                   style: AppFonts.poppinsRegular(
                                     fontSize: 14.sp,
                                     color: const Color(0xFF2D2D2D),
@@ -285,14 +285,14 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                                     color: Colors.white,
                                     shape: RoundedRectangleBorder(
                                       side: BorderSide(
-                                        width: 1,
+                                        width: 1.w,
                                         color: AppColors.googlebuttonColor,
                                       ),
                                       borderRadius: BorderRadius.circular(100.r),
                                     ),
                                   ),
                                   child: Text(
-                                    'Cancel',
+                                    AppLocalizations.of(context)!.cancelBtn,
                                     textAlign: TextAlign.center,
                                     style: AppFonts.poppinsMedium(
                                       fontSize: 14.sp,
@@ -318,7 +318,7 @@ class _OtherOptionDialogState extends State<OtherOptionDialog> {
                                     ),
                                   ),
                                   child: Text(
-                                    'OK',
+                                    AppLocalizations.of(context)!.okBtn,
                                     textAlign: TextAlign.center,
                                     style: AppFonts.poppinsMedium(
                                       fontSize: 14.sp,

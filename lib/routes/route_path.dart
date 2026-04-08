@@ -17,6 +17,7 @@ import 'package:mind_glow/views/inner_learning/inner_learning.dart';
 import 'package:mind_glow/views/inner_learning/relationship_learning/relationship_learning.dart';
 import 'package:go_router/go_router.dart';
 
+import '../views/auth_guard/auth_guard_screen.dart';
 import '../views/inspire/inspire.dart';
 import '../views/reflect/reflect.dart';
 import '../views/journey/journey.dart';
@@ -30,9 +31,13 @@ import 'app_path.dart';
 
 class RoutePath {
   static final GoRouter router = GoRouter(
-    initialLocation: AppPath.onboarding,
+    initialLocation: '/', // Start with the auth guard!
     routes: [
-
+      GoRoute(
+        path: '/',
+        name: 'authGuard',
+        builder: (context, state) => const AuthGuardScreen(),
+      ),
       GoRoute(
         path: AppPath.onboarding,
         name: 'onboarding',

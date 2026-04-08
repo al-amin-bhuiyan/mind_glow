@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../../controllers/inspire_controller/inspire_controller.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../utils/app_fonts.dart';
 
@@ -20,18 +20,29 @@ class CategoryFilterChips extends StatelessWidget {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: controller.categories.map((category) {
+        children: controller.categories.map((categoryKey) {
           return Padding(
             padding: EdgeInsets.only(right: 10.w),
             child: Obx(() => _CategoryChip(
-              label: category,
-              isSelected: controller.selectedCategory.value == category,
-              onTap: () => controller.selectCategory(category),
+              label: _getLocalizedCategory(context, categoryKey),
+              isSelected: controller.selectedCategory.value == categoryKey,
+              onTap: () => controller.selectCategory(categoryKey),
             )),
           );
         }).toList(),
       ),
     );
+  }
+
+  String _getLocalizedCategory(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context)!;
+    switch(key) {
+      case 'categoryVoices': return l10n.categoryVoices;
+      case 'categoryMeaning': return l10n.categoryMeaning;
+      case 'categoryPerspectives': return l10n.categoryPerspectives;
+      case 'categoryWhatMatters': return l10n.categoryWhatMatters;
+      default: return key;
+    }
   }
 }
 

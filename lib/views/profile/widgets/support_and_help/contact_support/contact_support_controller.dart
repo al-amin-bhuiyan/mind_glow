@@ -2,9 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../../models/contact_support_model.dart';
+import '../../../../../../services/support_service.dart';
+import '../../../../../../services/token_storage_service.dart';
+
 /// Contact Support Controller - Manages contact support form state and validation
 class ContactSupportController extends GetxController {
-  /// Text editing controllers for form fields
+  // ─── Dependencies ────────────────────────────────────────────────────────
+  final SupportService _supportService = SupportService.instance;
+  
+  // ─── Text editing controllers for form fields ────────────────────────────
   final TextEditingController subjectController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
@@ -15,10 +22,11 @@ class ContactSupportController extends GetxController {
   /// Loading state
   final RxBool isLoading = false.obs;
 
-  /// Form validation states
-  final RxString subjectError = ''.obs;
-  final RxString emailError = ''.obs;
-  final RxString messageError = ''.obs;
+  @override
+  void onInit() {
+    super.onInit();
+    _loadUserEmail();
+  }
 
   @override
   void onClose() {
@@ -26,6 +34,14 @@ class ContactSupportController extends GetxController {
     emailController.dispose();
     messageController.dispose();
     super.onClose();
+  }
+
+  /// Automatically fill email if the user is authenticated
+  Future<void> _loadUserEmail() async {
+    final cachedEmail = await TokenStorageService.instance.getUserEmail();
+    if (cachedEmail != null && cachedEmail.isNotEmpty) {
+      emailController.text = cachedEmail;
+    }
   }
 
   /// Validate email format
@@ -71,31 +87,33 @@ class ContactSupportController extends GetxController {
 
   /// Submit support request
   Future<void> submitSupportRequest() async {
-    // Clear previous errors
-    subjectError.value = '';
-    emailError.value = '';
-    messageError.value = '';
-
     // Validate form
-    if (formKey.currentState?.validate() ?? false) {
-      isLoading.value = true;
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    
+    isLoading.value = true;
 
-      try {
-        // Simulate API call
-        await Future.delayed(const Duration(seconds: 2));
+    try {
+      // Package request model
+      final request = ContactSupportRequestModel(
+        subject: subjectController.text.trim(),
+        email: emailController.text.trim(),
+        message: messageController.text.trim(),
+      );
 
-        // TODO: Implement actual API call
-        // final response = await supportRepository.submitSupportRequest(
-        //   subject: subjectController.text.trim(),
-        //   email: emailController.text.trim(),
-        //   message: messageController.text.trim(),
-        // );
+      // Attempt to load token if endpoint requires Bearer Token authorization
+      final token = await TokenStorageService.instance.getAccessToken();
 
+      final response = await _supportService.submitSupportRequest(
+        request: request,
+        token: token,
+      );
+
+      if (response.success && response.data != null) {
         // Show success message
         Get.snackbar(
           'Success',
           'Your message has been sent successfully. We\'ll respond as soon as we can.',
-          snackPosition: SnackPosition.TOP,
+          snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFF4CAF50),
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
@@ -106,35 +124,40 @@ class ContactSupportController extends GetxController {
 
         // Navigate back after a short delay
         await Future.delayed(const Duration(milliseconds: 500));
-        Get.back();
-      } catch (e) {
-        // Show error message
-        Get.snackbar(
-          'Error',
-          'Failed to send message. Please try again.',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: const Color(0xFFE53935),
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
-        );
-      } finally {
-        isLoading.value = false;
+        if (Get.context != null && Get.context!.mounted) {
+           Get.context!.pop();
+        }
+      } else {
+        _showError(response.errorMessage ?? 'Failed to send message. Please try again.');
       }
+    } catch (e) {
+      debugPrint('❌ Submit support request error: $e');
+      _showError('Failed to send message. Please try again.');
+    } finally {
+      isLoading.value = false;
     }
+  }
+
+  void _showError(String error) {
+    Get.snackbar(
+      'Error',
+      error,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: const Color(0xFFE53935),
+      colorText: Colors.white,
+      duration: const Duration(seconds: 3),
+    );
   }
 
   /// Clear form fields
   void clearForm() {
     subjectController.clear();
-    emailController.clear();
     messageController.clear();
-    subjectError.value = '';
-    emailError.value = '';
-    messageError.value = '';
+    // Do not clear the email if they were pre-filled via session logic
   }
 
   /// Navigate back
-  void goBack(BuildContext conntext) {
-    conntext.pop();
+  void goBack(BuildContext context) {
+    context.pop();
   }
 }

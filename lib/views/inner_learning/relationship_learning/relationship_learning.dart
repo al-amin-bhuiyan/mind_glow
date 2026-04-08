@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../widgets/custom_assets.dart';
 import '../../../widgets/custom_back_button.dart';
 import 'relationship_learning_controller.dart';
+import '../../../models/learning_model.dart';
+import 'package:go_router/go_router.dart';
 
 class RelationshipLearningScreen extends StatelessWidget {
   const RelationshipLearningScreen({super.key});
@@ -12,6 +15,9 @@ class RelationshipLearningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(RelationshipLearningController());
+    
+    // Obtain incoming real API model or default
+    final LearningModel? learningArgs = GoRouterState.of(context).extra as LearningModel?;
 
     return Scaffold(
       extendBody: true,
@@ -40,13 +46,13 @@ class RelationshipLearningScreen extends StatelessWidget {
                       //    SizedBox(height: 8.h),
 
                       // Title Section
-                      _buildTitleSection(),
+                      _buildTitleSection(context, learningArgs),
 
                       SizedBox(height: 24.h),
 
                       // Content Card (Scrollable inside)
                       Expanded(
-                        child: _buildContentCard(),
+                        child: _buildContentCard(context, learningArgs),
                       ),
 
                       SizedBox(height: 40.h),
@@ -86,7 +92,7 @@ class RelationshipLearningScreen extends StatelessWidget {
             SizedBox(width: 46.w),
             Expanded(
               child: Text(
-                'Relationship Learning',
+                AppLocalizations.of(context)!.relationshipLearningTitle,
                 textAlign: TextAlign.center,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 16.5.sp,
@@ -103,12 +109,12 @@ class RelationshipLearningScreen extends StatelessWidget {
   }
 
   /// Build title section
-  Widget _buildTitleSection() {
+  Widget _buildTitleSection(BuildContext context, LearningModel? learningArgs) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Learn About Relationships',
+          learningArgs?.title ?? AppLocalizations.of(context)!.learnAboutRelationships,
           style: AppFonts.poppinsMedium(
             fontSize: 18.sp,
             color: const Color(0xFF292423),
@@ -116,7 +122,7 @@ class RelationshipLearningScreen extends StatelessWidget {
         ),
         SizedBox(height: 8.h),
         Text(
-          'Build healthy, meaningful, and lasting connections with others.',
+          AppLocalizations.of(context)!.buildHealthyConnections,
           style: AppFonts.manropeRegular(
             fontSize: 14.sp,
             color: const Color(0xFF78706B),
@@ -128,7 +134,7 @@ class RelationshipLearningScreen extends StatelessWidget {
   }
 
   /// Build content card with relationship learning text
-  Widget _buildContentCard() {
+  Widget _buildContentCard(BuildContext context, LearningModel? learningArgs) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 16.h),
@@ -170,11 +176,7 @@ class RelationshipLearningScreen extends StatelessWidget {
       ),
       child: SingleChildScrollView(
         child: Text(
-          'Healthy relationships are built on trust, respect, understanding, and emotional safety. A strong connection does not mean there will be no disagreements — it means both people are willing to communicate openly and solve problems together.\n\n'
-              'Good communication is the foundation of every meaningful relationship. It involves listening without judgment, expressing feelings honestly, and respecting each other\'s perspective. When both individuals feel heard and valued, the bond becomes stronger.\n\n'
-              'Setting healthy boundaries is also important. Boundaries are not walls; they are guidelines that protect emotional well-being. They help both people understand what is acceptable and what is not.\n\n'
-              'In any relationship, conflicts are normal. What truly matters is how those conflicts are handled. Responding with patience, empathy, and maturity helps maintain trust and emotional stability.\n\n'
-              'A healthy relationship should make you feel supported, respected, and safe — not anxious or uncertain. Take time to reflect on the kind of connection you want in your life and whether your current relationships align with your values and emotional needs.',
+          learningArgs?.description ?? AppLocalizations.of(context)!.relationshipLearningContent,
           style: AppFonts.poppinsRegular(
             fontSize: 14.sp,
             color: Colors.black.withValues(alpha: 0.60),

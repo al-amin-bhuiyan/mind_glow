@@ -1,0 +1,1 @@
+import 'package:http/http.dart' as http; import 'dart:convert'; void main() async { var res = await http.post(Uri.parse('https://api.mindglow.tech/v1/users/auth/login/'), headers: {'Content-Type': 'application/json'}, body: jsonEncode({'email': 'md@gmail.com', 'password': '123456'})); print(res.statusCode); print(res.body); }

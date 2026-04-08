@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../controllers/inspire_controller/inspire_controller.dart';
 import '../../utils/app_fonts.dart';
@@ -78,7 +79,7 @@ class InspireScreen extends StatelessWidget {
                             SizedBox(height: 10.h),
 
                             // Subtitle text
-                            _buildSubtitle(),
+                            _buildSubtitle(context),
 
                             SizedBox(height: 16.h),
 
@@ -90,22 +91,22 @@ class InspireScreen extends StatelessWidget {
                             SizedBox(height: 24.h),
 
                             // What you've reflected on section
-                            _buildReflectedOnSection(controller),
+                            _buildReflectedOnSection(context, controller),
 
                             SizedBox(height: 20.h),
 
                             // Save Inspirations section
-                            _buildSaveInspirationsSection(controller),
+                            _buildSaveInspirationsSection(context, controller),
 
                             SizedBox(height: 20.h),
 
                             // Inspiration Video section
-                            _buildInspirationVideoSection(controller),
+                            _buildInspirationVideoSection(context, controller),
 
                             SizedBox(height: 20.h),
 
                             // Bottom note
-                            _buildBottomNote(),
+                            _buildBottomNote(context),
 
                             SizedBox(height: 100.h), // Space for nav bar
                           ],
@@ -168,7 +169,7 @@ class InspireScreen extends StatelessWidget {
 
               // Title
               Text(
-                'Inspire',
+                AppLocalizations.of(context)!.inspireTitle,
                 textAlign: TextAlign.center,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 18.sp,
@@ -186,11 +187,11 @@ class InspireScreen extends StatelessWidget {
   }
 
   /// Build subtitle text
-  Widget _buildSubtitle() {
+  Widget _buildSubtitle(BuildContext context) {
     return SizedBox(
       width: 350.w,
       child: Text(
-        'Quiet words and ideas to sit with.',
+        AppLocalizations.of(context)!.inspireSubtitle,
         textAlign: TextAlign.center,
         style: AppFonts.manropeRegular(
           fontSize: 14.sp,
@@ -201,7 +202,7 @@ class InspireScreen extends StatelessWidget {
   }
 
   /// Build "What you've reflected on" section
-  Widget _buildReflectedOnSection(InspireController controller) {
+  Widget _buildReflectedOnSection(BuildContext context, InspireController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -212,7 +213,7 @@ class InspireScreen extends StatelessWidget {
             SizedBox(
               width: 242.w,
               child: Text(
-                "What you've reflected on",
+                AppLocalizations.of(context)!.whatYouReflectedOn,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 18.sp,
                   color: const Color(0xFF1E1E1E),
@@ -221,7 +222,7 @@ class InspireScreen extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Choose what feels meaningful to you .',
+              AppLocalizations.of(context)!.chooseWhatFeelsMeaningful,
               style: AppFonts.manropeRegular(
                 fontSize: 14.sp,
                 color: const Color(0xFF78706B),
@@ -239,7 +240,7 @@ class InspireScreen extends StatelessWidget {
   }
 
   /// Build "Save Inspirations" section
-  Widget _buildSaveInspirationsSection(InspireController controller) {
+  Widget _buildSaveInspirationsSection(BuildContext context, InspireController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,7 +249,7 @@ class InspireScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Save Inspirations',
+              AppLocalizations.of(context)!.saveInspirations,
               style: AppFonts.poppinsSemiBold(
                 fontSize: 18.sp,
                 color: const Color(0xFF1E1E1E),
@@ -256,7 +257,7 @@ class InspireScreen extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Words you chose to keep',
+              AppLocalizations.of(context)!.wordsYouChoseToKeep,
               style: AppFonts.manropeRegular(
                 fontSize: 14.sp,
                 color: const Color(0xFF78706B),
@@ -326,7 +327,7 @@ class InspireScreen extends StatelessWidget {
   }
 
   /// Build "Inspiration Video" section
-  Widget _buildInspirationVideoSection(InspireController controller) {
+  Widget _buildInspirationVideoSection(BuildContext context, InspireController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -335,7 +336,7 @@ class InspireScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Inspiration Video',
+              AppLocalizations.of(context)!.inspirationVideo,
               style: AppFonts.poppinsSemiBold(
                 fontSize: 18.sp,
                 color: const Color(0xFF1E1E1E),
@@ -343,7 +344,7 @@ class InspireScreen extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Words you chose to keep',
+              AppLocalizations.of(context)!.wordsYouChoseToKeep,
               style: AppFonts.manropeRegular(
                 fontSize: 14.sp,
                 color: const Color(0xFF78706B),
@@ -403,11 +404,11 @@ class InspireScreen extends StatelessWidget {
   }
 
   /// Build bottom note
-  Widget _buildBottomNote() {
+  Widget _buildBottomNote(BuildContext context) {
     return SizedBox(
       width: 350.w,
       child: Text(
-        'You may return to reflection whenever it feels right',
+        AppLocalizations.of(context)!.inspireBottomNote,
         textAlign: TextAlign.center,
         style: AppFonts.manropeRegular(
           fontSize: 14.sp,

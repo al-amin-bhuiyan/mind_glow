@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
+import '../../services/inspiration_service.dart';
+import '../../services/token_storage_service.dart';
 
 /// Inspire Controller - Manages inspire screen state and data
 /// Follows OOP principles with proper encapsulation
@@ -6,7 +9,7 @@ class InspireController extends GetxController {
   // ==================== Observable Properties ====================
 
   /// Selected category filter
-  final RxString selectedCategory = 'Voices'.obs;
+  final RxString selectedCategory = 'categoryVoices'.obs;
 
   /// List of saved inspirations
   final RxList<InspirationItem> savedInspirations = <InspirationItem>[].obs;
@@ -16,14 +19,14 @@ class InspireController extends GetxController {
 
   /// Featured quote
   final Rx<FeaturedQuote> featuredQuote = FeaturedQuote(
-    text: '"Not everything that feels unresolved need immediate clarity."',
-    subtitle: 'Chosen based on what resonates with you',
+    text: 'featuredQuoteText',
+    subtitle: 'featuredQuoteSubtitle',
   ).obs;
 
   // ==================== Constants ====================
 
   /// Available category options
-  final List<String> categories = ['Voices', 'Meaning', 'Perspectives', 'What Matters'];
+  final List<String> categories = ['categoryVoices', 'categoryMeaning', 'categoryPerspectives', 'categoryWhatMatters'];
 
   // ==================== Lifecycle Methods ====================
 
@@ -32,9 +35,29 @@ class InspireController extends GetxController {
     super.onInit();
     _loadSavedInspirations();
     _loadInspirationVideos();
+    _fetchDailyQuote();
   }
 
   // ==================== Private Methods ====================
+
+  Future<void> _fetchDailyQuote() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await InspirationService.instance.getDailyQuote(token: token);
+
+      if (response.success && response.data != null) {
+        if (response.data!.quote.isNotEmpty) {
+          featuredQuote.value = FeaturedQuote(
+            text: response.data!.quote,
+            subtitle: 'featuredQuoteSubtitle',
+            author: response.data!.author,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching daily quote in Inspire: $e');
+    }
+  }
 
   /// Load saved inspirations from data source
   void _loadSavedInspirations() {
@@ -43,29 +66,29 @@ class InspireController extends GetxController {
       InspirationItem(
         id: '1',
         type: InspirationItemType.quote,
-        title: 'Sometimes clarity arrives\nwhen we stop pushing \nfor it.',
-        savedContext: 'Save during a reflection on patience',
+        title: 'mockInspireTitle',
+        savedContext: 'mockContextPatience',
         isBookmarked: true,
       ),
       InspirationItem(
         id: '2',
         type: InspirationItemType.roleModel,
-        title: 'Sometimes clarity arrives\nwhen we stop pushing \nfor it.',
-        savedContext: 'Save after a quite moments',
+        title: 'mockInspireTitle',
+        savedContext: 'mockContextQuiet',
         isBookmarked: true,
       ),
       InspirationItem(
         id: '3',
         type: InspirationItemType.roleModel,
-        title: 'Sometimes clarity arrives\nwhen we stop pushing \nfor it.',
-        savedContext: 'Save during a reflection on patience',
+        title: 'mockInspireTitle',
+        savedContext: 'mockContextPatience',
         isBookmarked: true,
       ),
       InspirationItem(
         id: '4',
         type: InspirationItemType.quote,
-        title: 'Sometimes clarity arrives\nwhen we stop pushing \nfor it.',
-        savedContext: 'Save during a reflection on acceptance',
+        title: 'mockInspireTitle',
+        savedContext: 'mockContextAcceptance',
         isBookmarked: true,
       ),
     ];
@@ -148,10 +171,12 @@ class InspireController extends GetxController {
 class FeaturedQuote {
   final String text;
   final String subtitle;
+  final String author;
 
   FeaturedQuote({
     required this.text,
     required this.subtitle,
+    this.author = '',
   });
 }
 
@@ -181,9 +206,9 @@ class InspirationItem {
   String get typeLabel {
     switch (type) {
       case InspirationItemType.quote:
-        return 'Quote';
+        return 'typeQuote';
       case InspirationItemType.roleModel:
-        return 'Role Models';
+        return 'typeRoleModels';
     }
   }
 

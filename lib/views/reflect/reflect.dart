@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/reflect_controller/reflect_controller.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../utils/app_fonts.dart';
@@ -46,7 +47,7 @@ class ReflectScreen extends StatelessWidget {
                 _buildAppBar(context, controller),
 
                 // Subtitle
-                _buildSubtitle(),
+                _buildSubtitle(context),
 
                 // Chat Messages
                 Expanded(
@@ -88,7 +89,7 @@ class ReflectScreen extends StatelessWidget {
           Expanded(
             child: Center(
               child: Text(
-                'Reflect',
+                AppLocalizations.of(context)!.reflectTitle,
                 style: AppFonts.poppinsSemiBold(
                   fontSize: 18,
                   color: Colors.black,
@@ -105,11 +106,11 @@ class ReflectScreen extends StatelessWidget {
   }
 
   /// Build Subtitle
-  Widget _buildSubtitle() {
+  Widget _buildSubtitle(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20.h),
       child: Text(
-        'A quiet space to explore your thoughts.',
+        AppLocalizations.of(context)!.reflectSubtitle,
         style: TextStyle(
           color: const Color(0xFF78706B),
           fontSize: 14.sp,
@@ -239,7 +240,7 @@ class ReflectScreen extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.60),
                       ),
                       decoration: InputDecoration(
-                        hintText: 'I like working on the',
+                        hintText: AppLocalizations.of(context)!.reflectInputHint,
                         hintStyle: AppFonts.poppinsRegular(
                           fontSize: 14.sp,
                           color: Colors.black.withValues(alpha: 0.60),

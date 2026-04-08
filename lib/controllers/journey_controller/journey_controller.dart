@@ -1,4 +1,7 @@
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
+import '../../services/auth_service.dart';
+import '../../services/token_storage_service.dart';
 
 /// Journey Controller - Manages journey screen state and data
 /// Follows OOP principles with proper encapsulation
@@ -6,16 +9,16 @@ class JourneyController extends GetxController {
   // ==================== Observable Properties ====================
 
   /// Total reflections count
-  final RxInt reflectionsCount = 7.obs;
+  final RxInt reflectionsCount = 0.obs;
 
   /// Total themes explored count
-  final RxInt themesExploredCount = 3.obs;
+  final RxInt themesExploredCount = 0.obs;
 
   /// Total days reflected
-  final RxInt reflectedDaysCount = 6.obs;
+  final RxInt reflectedDaysCount = 0.obs;
 
   /// Selected filter option
-  final RxString selectedFilter = 'All'.obs;
+  final RxString selectedFilter = 'filterAll'.obs;
 
   /// Show/hide filter menu
   final RxBool showFilterMenu = false.obs;
@@ -26,7 +29,7 @@ class JourneyController extends GetxController {
   // ==================== Constants ====================
 
   /// Available filter options
-  final List<String> filterOptions = ['All', 'By Theme', 'By Time'];
+  final List<String> filterOptions = ['filterAll', 'filterByTheme', 'filterByTime'];
 
   // ==================== Lifecycle Methods ====================
 
@@ -34,9 +37,26 @@ class JourneyController extends GetxController {
   void onInit() {
     super.onInit();
     _loadReflections();
+    _fetchUserSummary();
   }
 
   // ==================== Private Methods ====================
+
+  /// Fetch user summary data for stats
+  Future<void> _fetchUserSummary() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await AuthService.instance.getUserSummary(token: token);
+
+      if (response.success && response.data != null) {
+        reflectionsCount.value = response.data!.reflectionsCount;
+        themesExploredCount.value = response.data!.learningsCount;
+        reflectedDaysCount.value = response.data!.activeReflectionDays;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user summary in journey: $e');
+    }
+  }
 
   /// Load reflections from data source
   void _loadReflections() {
@@ -44,27 +64,27 @@ class JourneyController extends GetxController {
     reflections.value = [
       ReflectionItem(
         id: '1',
-        date: 'April 12',
-        theme: 'Self-Confident.',
-        description: 'You reflected on moments where speaking up felt uncertain.',
+        date: 'april12',
+        theme: 'selfConfident',
+        description: 'mockDesc1',
       ),
       ReflectionItem(
         id: '2',
-        date: 'April 12',
-        theme: 'Self-Confident.',
-        description: 'You considered how past experiences have shaped your sense of confidence.',
+        date: 'april12',
+        theme: 'selfConfident',
+        description: 'mockDesc2',
       ),
       ReflectionItem(
         id: '3',
-        date: 'April 12',
-        theme: 'Self-Confident.',
-        description: 'You shared that sometimes you feel a weight in your sense of confidence.',
+        date: 'april12',
+        theme: 'selfConfident',
+        description: 'mockDesc3',
       ),
       ReflectionItem(
         id: '4',
-        date: 'April 12',
-        theme: 'Relationships.',
-        description: 'You reflected on how feeling supported deepens your connections.',
+        date: 'april12',
+        theme: 'relationships',
+        description: 'mockDesc4',
       ),
     ];
   }
@@ -92,10 +112,10 @@ class JourneyController extends GetxController {
     // TODO: Implement actual filtering logic
     // This could filter by theme, time, etc.
     switch (filter) {
-      case 'By Theme':
+      case 'filterByTheme':
       // Sort/filter by theme
         break;
-      case 'By Time':
+      case 'filterByTime':
       // Sort/filter by time
         break;
       default:
@@ -116,6 +136,7 @@ class JourneyController extends GetxController {
   Future<void> refreshReflections() async {
     // TODO: Implement refresh logic
     // This could fetch latest data from API
+    await _fetchUserSummary();
     await Future.delayed(const Duration(seconds: 1));
     _loadReflections();
   }

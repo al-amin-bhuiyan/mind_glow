@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/learning_model.dart';
+import '../../services/inner_learning_service.dart';
+import '../../services/token_storage_service.dart';
 
 class InnerLearningController extends GetxController with GetSingleTickerProviderStateMixin {
   // Observable list of past learnings
@@ -50,44 +52,42 @@ class InnerLearningController extends GetxController with GetSingleTickerProvide
   }
 
   /// Load past learnings from database/API
-  void _loadPastLearnings() {
-    pastLearnings.value = [
-      LearningModel(
-        id: '1',
-        date: 'April 12',
-        title: 'Learn About Relationships',
-        description:
-        'You reflected on moments where speaking up felt uncertain.',
-      ),
-      LearningModel(
-        id: '2',
-        date: 'April 12',
-        title: 'Learn About Self Reflection.',
-        description:
-        'You considered how past experiences have shaped your sense of confidence.',
-      ),
-      LearningModel(
-        id: '3',
-        date: 'April 12',
-        title: 'Learn About Self Confident.',
-        description:
-        'You shared that sometimes you feel a weight in your sense of confidence.',
-      ),
-      LearningModel(
-        id: '4',
-        date: 'April 11',
-        title: 'Learn About Patience',
-        description:
-        'You explored how waiting can sometimes feel uncomfortable.',
-      ),
-      LearningModel(
-        id: '5',
-        date: 'April 10',
-        title: 'Learn About Growth',
-        description:
-        'You discovered how small steps lead to meaningful changes.',
-      ),
-    ];
+  Future<void> _loadPastLearnings() async {
+    isLoading.value = true;
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await InnerLearningService.instance.getLearnings(token: token);
+
+      if (response.success && response.data != null) {
+        pastLearnings.value = response.data!;
+      } else {
+        // Fallback mock data if API fails or is empty
+        pastLearnings.value = [
+          LearningModel(
+            id: '1',
+            date: 'April 12',
+            title: 'learnAboutRelationships',
+            description: 'mockDesc1',
+          ),
+          LearningModel(
+            id: '2',
+            date: 'April 12',
+            title: 'learnAboutSelfReflection',
+            description: 'mockDesc2',
+          ),
+          LearningModel(
+            id: '3',
+            date: 'April 12',
+            title: 'learnAboutSelfConfident',
+            description: 'mockDesc3',
+          ),
+        ];
+      }
+    } catch (e) {
+      debugPrint('Error loading learnings: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Get learnings to display based on show more state
@@ -130,9 +130,8 @@ class InnerLearningController extends GetxController with GetSingleTickerProvide
 
   /// Open learning detail
   void openLearningDetail(LearningModel learning, BuildContext context) {
-    // For now, all learning cards navigate to relationship learning
-    // TODO: Create separate detail pages for each learning type
-    context.pushNamed('relationshipLearning');
+    // Pass the learning object explicitly as extra when navigating with GoRouter
+    context.pushNamed('relationshipLearning', extra: learning);
   }
 
   @override

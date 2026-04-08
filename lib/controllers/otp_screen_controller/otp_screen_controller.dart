@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import 'package:toastification/toastification.dart';
+
+import '../../routes/app_path.dart';
+import '../../services/auth_service.dart';
+import '../../services/auth_state_service.dart';
+import '../../services/token_storage_service.dart';
+import '../../widgets/custom_snackbar.dart';
 
 /// OTP Screen Controller - Manages OTP verification screen state and logic
 class OtpScreenController extends GetxController {
@@ -37,6 +44,15 @@ class OtpScreenController extends GetxController {
   final RxString otp5 = ''.obs;
   final RxString otp6 = ''.obs;
 
+  // Timer states
+  final RxInt _remainingSeconds = 60.obs;
+  final RxBool canResend = true.obs;
+  Timer? _timer;
+
+  // Dependencies
+  final AuthService _authService = AuthService.instance;
+  final TokenStorageService _tokenStorage = TokenStorageService.instance;
+
   @override
   void onInit() {
     super.onInit();
@@ -54,8 +70,16 @@ class OtpScreenController extends GetxController {
     userEmail.value = email;
   }
 
+  /// Get formatted timer text
+  String get timerText {
+    final minutes = (_remainingSeconds.value ~/ 60).toString().padLeft(1, '0');
+    final seconds = (_remainingSeconds.value % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
   @override
   void onClose() {
+    _stopTimer();
     otp1Controller.dispose();
     otp2Controller.dispose();
     otp3Controller.dispose();
@@ -88,73 +112,139 @@ class OtpScreenController extends GetxController {
     final otpCode = getOtpCode();
 
     if (otpCode.length != 6) {
-      Get.snackbar(
-        'Error',
-        'Please enter the complete 6-digit code',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      CustomSnackBar.showError(context, message: 'Please enter the complete 6-digit code');
+      return;
+    }
+
+    if (userEmail.value.isEmpty) {
+      CustomSnackBar.showError(context, message: 'Email not found. Please go back and try again.');
       return;
     }
 
     try {
       isLoading.value = true;
+      debugPrint('🔐 Verifying OTP for: ${userEmail.value}');
 
-      // TODO: Implement your OTP verification logic here
-      await Future.delayed(const Duration(seconds: 2)); // Simulating API call
-
-      Get.snackbar(
-        'Success',
-        'OTP verified successfully!',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+      final response = await _authService.verifyOtpSignup(
+        email: userEmail.value,
+        code: otpCode,
       );
 
-      // Navigate to home page
-      context.pushReplacementNamed('home');
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        debugPrint('✅ ${data.message}');
 
+        // Save JWT tokens
+        await _tokenStorage.saveTokens(
+          accessToken: data.access,
+          refreshToken: data.refresh,
+        );
+
+        // Mark auth state as authenticated
+        AuthStateService.instance.setAuthenticated();
+
+        CustomSnackBar.showSuccess(
+          context,
+          message: data.message.isNotEmpty ? data.message : 'Email verified successfully! Welcome aboard 🎉',
+        );
+
+        // Small delay so toast is visible
+        await Future.delayed(const Duration(milliseconds: 700));
+
+        // Navigate to home page
+        if (context.mounted) {
+          context.pushReplacement(AppPath.innerConnection);
+        }
+      } else {
+        CustomSnackBar.showError(
+          context,
+          message: response.errorMessage ?? 'Invalid verification code. Please try again.',
+        );
+      }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Invalid OTP code. Please try again.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      debugPrint('❌ OTP verify error: $e');
+      CustomSnackBar.showError(context, message: 'Verification failed. Please try again.');
     } finally {
       isLoading.value = false;
     }
   }
 
+  /// Starts the 60-second resend countdown timer
+  void _startTimer() {
+    _remainingSeconds.value = 60;
+    canResend.value = false;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds.value > 0) {
+        _remainingSeconds.value--;
+      } else {
+        canResend.value = true;
+        timer.cancel();
+      }
+    });
+  }
+
+  /// Cancels the countdown timer
+  void _stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
   /// Resend OTP code
   Future<void> resendCode(BuildContext context) async {
+    if (!canResend.value) {
+      CustomSnackBar.showInfo(
+        context,
+        message: 'Please wait $timerText before resending',
+      );
+      return;
+    }
+
+    if (userEmail.value.isEmpty) {
+      CustomSnackBar.showError(
+        context,
+        message: 'Email not found. Please go back and try again.',
+      );
+      return;
+    }
+
+    // Start countdown timer immediately
+    _startTimer();
+    isLoading.value = true;
+
     try {
-      isLoading.value = true;
+      debugPrint('📨 Resending OTP to: ${userEmail.value}');
 
-      // TODO: Implement your resend OTP logic here
-      await Future.delayed(const Duration(seconds: 2)); // Simulating API call
-
-      Get.snackbar(
-        'Success',
-        'OTP code has been resent to ${userEmail.value}',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+      final response = await _authService.resendOtp(
+        email: userEmail.value,
       );
 
-      // Clear all OTP fields
-      clearOtpFields();
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        
+        CustomSnackBar.showSuccess(
+          context,
+          message: data.message.isNotEmpty ? data.message : 'OTP code has been resent to ${userEmail.value}',
+        );
 
+        // Clear all OTP fields
+        clearOtpFields();
+      } else {
+        CustomSnackBar.showError(
+          context,
+          message: response.errorMessage ?? 'Failed to resend code. Please try again.',
+        );
+        _stopTimer();
+        canResend.value = true;
+      }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to resend OTP code. Please try again.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      debugPrint('❌ Resend OTP error: $e');
+      CustomSnackBar.showError(
+        context,
+        message: 'Failed to resend OTP code. Please try again.',
       );
+      _stopTimer();
+      canResend.value = true;
     } finally {
       isLoading.value = false;
     }

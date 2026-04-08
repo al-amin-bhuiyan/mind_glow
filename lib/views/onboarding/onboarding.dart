@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import '../../routes/app_path.dart';
+import '../../services/auth_state_service.dart';
+import '../../services/token_storage_service.dart';
 import '../../utils/app_fonts.dart';
 import '../../widgets/custom_assets.dart';
 import '../../widgets/custom_button.dart';
@@ -45,7 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentPage < _pages.length - 1) {
       _pageController.animateToPage(
         _currentPage + 1,
@@ -53,8 +55,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOutCubic,
       );
     } else {
-      // Navigate to next screen (login or home)
-      context.go(AppPath.login);
+      // Mark onboarding as seen permanently
+      await TokenStorageService.instance.setOnboardingSeen();
+      AuthStateService.instance.reset();
+      
+      if (mounted) {
+        // Navigate to next screen (login or home)
+        context.go(AppPath.login);
+      }
     }
   }
 
@@ -244,4 +252,3 @@ class OnboardingData {
     required this.description,
   });
 }
-

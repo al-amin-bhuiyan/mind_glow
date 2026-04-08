@@ -1,4 +1,4 @@
-import 'package:mind_glow/widgets/custom_assets.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -25,7 +25,6 @@ class ReflectionCard extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            height: 94.h,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             clipBehavior: Clip.antiAlias,
             decoration: ShapeDecoration(
@@ -65,7 +64,7 @@ class ReflectionCard extends StatelessWidget {
 
                 // Content
                 Expanded(
-                  child: _buildContent(),
+                  child: _buildContent(context),
                 ),
               ],
             ),
@@ -129,19 +128,20 @@ class ReflectionCard extends StatelessWidget {
   }
 
   /// Build content section
-  Widget _buildContent() {
+  Widget _buildContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         // Title with date and theme - SemiBold
         Text(
-          '${reflection.date} :- ${reflection.theme}',
+          '${_getTranslated(context, reflection.date)} :- ${_getTranslated(context, reflection.theme)}',
           style: TextStyle(
             color: const Color(0xFF1E1E1E),
             fontSize: 14.sp,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w600, // SemiBold
-            height: 1.43,
+           // height:2.43.h,
           ),
         ),
 
@@ -151,7 +151,7 @@ class ReflectionCard extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: Text(
-            reflection.description,
+            _getTranslated(context, reflection.description),
             style: TextStyle(
               color: const Color(0xFF1E1E1E),
               fontSize: 12.sp,
@@ -162,5 +162,19 @@ class ReflectionCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _getTranslated(BuildContext context, String key) {
+     final l10n = AppLocalizations.of(context)!;
+     switch(key) {
+       case 'april12': return l10n.april12;
+       case 'selfConfident': return l10n.selfConfident;
+       case 'relationships': return l10n.relationships;
+       case 'mockDesc1': return l10n.mockDesc1;
+       case 'mockDesc2': return l10n.mockDesc2;
+       case 'mockDesc3': return l10n.mockDesc3;
+       case 'mockDesc4': return l10n.mockDesc4;
+       default: return key;
+     }
   }
 }

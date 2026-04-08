@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../services/auth_service.dart';
+import '../../services/token_storage_service.dart';
+import '../../models/complete_profile_model.dart';
+import '../../widgets/custom_snackbar.dart';
 
 /// Inner Connection Controller - Manages inner connection questionnaire flow
 class InnerConnectionController extends GetxController {
   // Current page index (0-7 for 8 pages)
   final RxInt currentPage = 0.obs;
   final int totalPages = 8;
+  final RxBool isLoading = false.obs;
+
+  // Dependencies
+  final AuthService _authService = AuthService.instance;
+  final TokenStorageService _tokenStorage = TokenStorageService.instance;
 
   // Text editing controller for full name
   final TextEditingController fullNameController = TextEditingController();
@@ -283,37 +292,97 @@ class InnerConnectionController extends GetxController {
   }
 
   /// Complete questionnaire
-  void completeQuestionnaire({VoidCallback? onComplete}) {
-    print('====== Inner Connection Completed! ======');
-    print('Full Name: ${selectedFullName.value}');
-    print('Pronoun: ${selectedPronoun.value}');
-    print('Age Range: ${selectedAgeRange.value}');
-    print('Life Situation: ${selectedLifeSituation.value}');
-    print('Life Stage: ${selectedLifeStage.value}');
-    print('Life Feeling: ${selectedLifeFeeling.value}');
-    print('Faith: ${selectedFaith.value}');
-    print('Inspiration Source: ${selectedInspirationSource.value}');
-    print('Attention Area: ${selectedAttentionArea.value}');
-    print('=========================================');
+  Future<void> completeQuestionnaire({VoidCallback? onComplete}) async {
+    if (isLoading.value) return;
 
-    // Show success message
-    Get.snackbar(
-      'Success',
-      'Inner connection questionnaire completed!',
-      backgroundColor: Colors.green.withValues(alpha: 0.9),
-      colorText: Colors.white,
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 2),
-    );
+    try {
+      isLoading.value = true;
+      debugPrint('====== Inner Connection Completed! ======');
+      
+      final String lifeSituation = selectedLifeSituation.value == 'Other' 
+          ? customLifeSituation.value 
+          : selectedLifeSituation.value;
+          
+      final String occupation = selectedLifeStage.value == 'Other' 
+          ? customLifeStage.value 
+          : selectedLifeStage.value;
+          
+      final String lifeFeelings = selectedLifeFeeling.value == 'Other' 
+          ? customLifeFeeling.value 
+          : selectedLifeFeeling.value;
+          
+      final String faith = selectedFaith.value == 'Other' 
+          ? customFaith.value 
+          : selectedFaith.value;
+          
+      final String attentionToday = selectedAttentionArea.value == 'Other' 
+          ? customAttentionArea.value 
+          : selectedAttentionArea.value;
 
-    // TODO: Save data to database/storage
+      final request = CompleteProfileRequestModel(
+        fullName: selectedFullName.value,
+        ageGroup: selectedAgeRange.value,
+        lifeSituation: lifeSituation,
+        occupation: occupation,
+        lifeFeelings: lifeFeelings,
+        faith: faith,
+        inspirationSources: selectedInspirationSource.value,
+        attentionToday: attentionToday,
+      );
 
-    // Navigate to home screen after a short delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (onComplete != null) {
-        onComplete();
+      final token = await _tokenStorage.getAccessToken();
+
+      final response = await _authService.completeProfile(
+        request: request,
+        token: token,
+      );
+
+      if (response.success) {
+        if (Get.context != null) {
+          CustomSnackBar.showSuccess(
+            Get.context!,
+            message: response.data?.message ?? 'Profile saved successfully!',
+          );
+        } else {
+          Get.snackbar(
+            'Success',
+            response.data?.message ?? 'Profile saved successfully!',
+            backgroundColor: Colors.green.withValues(alpha: 0.9),
+            colorText: Colors.white,
+          );
+        }
+        
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (onComplete != null) {
+            onComplete();
+          }
+        });
+      } else {
+        if (Get.context != null) {
+          CustomSnackBar.showError(
+            Get.context!,
+            message: response.errorMessage ?? 'Failed to save profile.',
+          );
+        } else {
+          Get.snackbar(
+            'Error',
+            response.errorMessage ?? 'Failed to save profile.',
+            backgroundColor: Colors.red.withValues(alpha: 0.9),
+            colorText: Colors.white,
+          );
+        }
       }
-    });
+    } catch (e) {
+      debugPrint('❌ Profile complete error: $e');
+      if (Get.context != null) {
+        CustomSnackBar.showError(
+          Get.context!,
+          message: 'An error occurred while saving profile.',
+        );
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Reset all selections

@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
 import '../../routes/app_path.dart';
+import '../../services/auth_service.dart';
+import '../../widgets/custom_snackbar.dart';
 
 /// SignUp Controller - Manages sign up screen state and logic
 class SignUpController extends GetxController {
@@ -10,17 +12,16 @@ class SignUpController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   // Text editing controllers
-  final TextEditingController fullNameController = TextEditingController(text: 'Mohammad Shobuj');
-  final TextEditingController emailController = TextEditingController(text: 'md@gmail.com');
-  final TextEditingController passwordController = TextEditingController(text: '123456');
-  final TextEditingController confirmPasswordController = TextEditingController(text: '123456');
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   // Observable states
   final RxBool isPasswordVisible = false.obs;
-  final RxBool isConfirmPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
   final RxBool isEmailValid = false.obs;
-  final RxBool isFullNameValid = false.obs;
+
+  // Dependency
+  final AuthService _authService = AuthService.instance;
 
   // Email validation regex
   final RegExp _emailRegex = RegExp(
@@ -32,15 +33,12 @@ class SignUpController extends GetxController {
     super.onInit();
     // Listen to field changes for real-time validation
     emailController.addListener(_validateEmail);
-    fullNameController.addListener(_validateFullName);
   }
 
   @override
   void onClose() {
-    fullNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.onClose();
   }
 
@@ -49,35 +47,14 @@ class SignUpController extends GetxController {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
-  /// Toggle confirm password visibility
-  void toggleConfirmPasswordVisibility() {
-    isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
-  }
-
   /// Validate email in real-time
   void _validateEmail() {
     isEmailValid.value = _emailRegex.hasMatch(emailController.text);
   }
 
-  /// Validate full name in real-time
-  void _validateFullName() {
-    isFullNameValid.value = fullNameController.text.trim().length >= 2;
-  }
-
   /// Validate form
   bool validateForm() {
     return formKey.currentState?.validate() ?? false;
-  }
-
-  /// Full name validator
-  String? fullNameValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Full name is required';
-    }
-    if (value.trim().length < 2) {
-      return 'Full name must be at least 2 characters';
-    }
-    return null;
   }
 
   /// Email validator
@@ -102,69 +79,53 @@ class SignUpController extends GetxController {
     return null;
   }
 
-  /// Confirm password validator
-  String? confirmPasswordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
-    }
-    if (value != passwordController.text) {
-      return 'Passwords do not match';
-    }
-    return null;
-  }
-
   /// Sign up with email and password
   Future<void> signUpWithEmail(BuildContext context) async {
-    if (!validateForm()) return;
+    debugPrint('🚀 [SignUpController] signUpWithEmail triggered!');
+    if (!validateForm()) {
+      debugPrint('⛔ [SignUpController] Form validation failed, aborting signup');
+      return;
+    }
 
     try {
       isLoading.value = true;
+      final String email = emailController.text.trim();
+      final String password = passwordController.text;
+      debugPrint('📧 [SignUpController] Attempting signup with email: $email');
 
-      // TODO: Implement actual sign-up logic here
-      await Future.delayed(const Duration(seconds: 2)); // Simulating API call
-
-      // Show success toast
-      toastification.show(
-        context: context,
-        type: ToastificationType.success,
-        style: ToastificationStyle.flat,
-        title: const Text('Success'),
-        description: const Text('Sign up successful!'),
-        alignment: Alignment.bottomCenter,
-        autoCloseDuration: const Duration(seconds: 2),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.check_circle, color: Colors.white),
-        showProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        dragToClose: true,
+      final response = await _authService.signup(
+        email: email,
+        password: password,
       );
 
-      // Navigate to inner connection page after successful signup
-      if (context.mounted) {
-        context.push(AppPath.innerConnection);
-      }
+      debugPrint('📥 [SignUpController] Signup API response received. Success: ${response.success}');
 
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        CustomSnackBar.showSuccess(
+          context,
+          message: data.message.isNotEmpty ? data.message : 'Sign up successful! OTP sent to email.',
+        );
+
+        // Navigate to OTP page after successful signup
+        if (context.mounted) {
+          context.push(AppPath.otpVerification, extra: {'email': email});
+        }
+      } else {
+        CustomSnackBar.showError(
+          context,
+          message: response.errorMessage ?? 'Sign up failed. Please try again.',
+        );
+      }
     } catch (e) {
-      toastification.show(
-        context: context,
-        type: ToastificationType.error,
-        style: ToastificationStyle.flat,
-        title: const Text('Error'),
-        description: Text('Sign up failed: ${e.toString()}'),
-        alignment: Alignment.bottomCenter,
-        autoCloseDuration: const Duration(seconds: 3),
-        backgroundColor: Colors.red,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.error, color: Colors.white),
-        showProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        dragToClose: true,
+      debugPrint('💥 [SignUpController] Exception caught during signup: $e');
+      CustomSnackBar.showError(
+        context,
+        message: 'Sign up failed: ${e.toString()}',
       );
     } finally {
       isLoading.value = false;
+      debugPrint('⏹️ [SignUpController] signUpWithEmail process completed');
     }
   }
 

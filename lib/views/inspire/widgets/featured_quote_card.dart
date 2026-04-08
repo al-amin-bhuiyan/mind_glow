@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../controllers/inspire_controller/inspire_controller.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../utils/app_fonts.dart';
 
@@ -45,13 +45,36 @@ class FeaturedQuoteCard extends StatelessWidget {
           // Quote text
           Padding(
             padding: EdgeInsets.only(bottom: 30.h),
-            child: Text(
-              quote.text,
-              style: AppFonts.manropeSemiBold(
-                fontSize: 16.sp,
-                color: const Color(0xFF1E1E1E),
-                height: 1.50,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _getLocalized(context, quote.text),
+                  style: AppFonts.manropeSemiBold(
+                    fontSize: 16.sp,
+                    color: const Color(0xFF1E1E1E),
+                    height: 1.50,
+                  ),
+                ),
+                if (quote.author.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8.h),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "- ${quote.author}",
+                        style: TextStyle(
+                          color: const Color(0xFF1E1E1E).withValues(alpha: 0.8),
+                          fontSize: 12.sp,
+                          fontFamily: 'Manrope',
+                          fontWeight: FontWeight.w600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
 
@@ -65,7 +88,7 @@ class FeaturedQuoteCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    quote.subtitle,
+                    _getLocalized(context, quote.subtitle),
                     style: AppFonts.manropeRegular(
                       fontSize: 12.sp,
                       color: const Color(0xFF5D4708),
@@ -84,5 +107,14 @@ class FeaturedQuoteCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getLocalized(BuildContext context, String key) {
+    if (key == 'featuredQuoteText') {
+      return AppLocalizations.of(context)!.featuredQuoteText;
+    } else if (key == 'featuredQuoteSubtitle') {
+      return AppLocalizations.of(context)!.featuredQuoteSubtitle;
+    }
+    return key;
   }
 }
