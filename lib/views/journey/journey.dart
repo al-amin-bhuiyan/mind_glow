@@ -91,7 +91,7 @@ class JourneyScreen extends StatelessWidget {
                             SizedBox(height: 10.h),
 
                             // Reflection cards list
-                            _buildReflectionsList(controller),
+                            _buildReflectionsList(context, controller),
 
                             SizedBox(height: 20.h),
 
@@ -216,19 +216,25 @@ class JourneyScreen extends StatelessWidget {
   }
 
   /// Build list of reflection cards
-  Widget _buildReflectionsList(JourneyController controller) {
+  Widget _buildReflectionsList(BuildContext context, JourneyController controller) {
     return Obx(
-          () => Column(
-        children: controller.reflections
-            .map((reflection) => Padding(
-          padding: EdgeInsets.only(bottom: 8.h),
-          child: ReflectionCard(
-            reflection: reflection,
-            onTap: () => controller.openReflectionDetail(reflection),
-          ),
-        ))
-            .toList(),
-      ),
+      () {
+        return Column(
+          children: controller.reflections
+              .map((reflection) => Padding(
+                    padding: EdgeInsets.only(bottom: 8.h),
+                    child: ReflectionCard(
+                      reflection: reflection,
+                      onTap: () async {
+                        if (context.mounted) {
+                          await controller.openReflectionDetail(context, reflection);
+                        }
+                      },
+                    ),
+                  ))
+              .toList(),
+        );
+      },
     );
   }
 

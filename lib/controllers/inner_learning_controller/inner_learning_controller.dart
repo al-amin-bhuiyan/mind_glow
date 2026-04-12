@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import '../../models/api_response_model.dart';
 import '../../models/learning_model.dart';
 import '../../services/inner_learning_service.dart';
 import '../../services/token_storage_service.dart';
@@ -110,28 +111,67 @@ class InnerLearningController extends GetxController with GetSingleTickerProvide
     }
   }
 
+  Future<void> _generateAndNavigateToLearning(String topic, BuildContext context) async {
+    isLoading.value = true;
+    ApiResponse<LearningModel>? response;
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      response = await InnerLearningService.instance.generateLearningInfo(
+        topic: topic,
+        token: token,
+      );
+    } catch (e) {
+      debugPrint('Error generating learning: $e');
+    } finally {
+      isLoading.value = false;
+    }
+
+    if (response != null && response.success && response.data != null) {
+      // Insert the newly generated learning at the top of the list instantly
+      pastLearnings.insert(0, response.data!);
+      
+      // Send newly generated learning data to page
+      if (context.mounted) {
+        await context.pushNamed('relationshipLearning', extra: response.data);
+        // Refresh the list from the GET API instantly when the user comes back
+        _loadPastLearnings();
+      }
+    } else if (response != null) {
+      // Handle error: possibly show a toast
+      debugPrint('Error: \${response.errorMessage}');
+    }
+  }
+
   /// Handle suggestion tap
   void onSuggestionTap(String suggestion, BuildContext context) {
-    // For now, all suggestions navigate to relationship learning
-    // TODO: Create separate pages for self reflection and self confident
-    context.pushNamed('relationshipLearning');
+    FocusScope.of(context).unfocus();
+    _generateAndNavigateToLearning(suggestion, context);
   }
 
   /// Send learning query
   void sendLearningQuery(BuildContext context) {
-    if (learningInput.value.trim().isEmpty) return;
+    final topic = textController.text.trim();
+    debugPrint('🔘 Send button tapped. Topic: "$topic"');
+    
+    FocusScope.of(context).unfocus();
+    
+    if (topic.isEmpty) {
+      debugPrint('⚠️ Topic is empty, aborting.');
+      return;
+    }
 
-    // For now, all queries navigate to relationship learning
-    // TODO: Create separate pages for different learning topics
-    context.pushNamed('relationshipLearning');
     learningInput.value = '';
     textController.clear();
+    
+    debugPrint('🚀 Triggering API call with topic: "$topic"');
+    _generateAndNavigateToLearning(topic, context);
   }
 
   /// Open learning detail
-  void openLearningDetail(LearningModel learning, BuildContext context) {
+  Future<void> openLearningDetail(LearningModel learning, BuildContext context) async {
     // Pass the learning object explicitly as extra when navigating with GoRouter
-    context.pushNamed('relationshipLearning', extra: learning);
+    await context.pushNamed('relationshipLearning', extra: learning);
+    _loadPastLearnings();
   }
 
   @override

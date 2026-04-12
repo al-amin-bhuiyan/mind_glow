@@ -11,8 +11,14 @@ class AppConstants {
   static const String changePasswordEndpoint = '/users/auth/password/change/';
   static const String userSummaryEndpoint = '/users/auth/user/summary/';
   static const String quoteEndpoint = '/inspirations/quote/';
-  static const String learningsEndpoint = '/learnings/';
+  static const String userProfileEndpoint = '/users/auth/user/';
+  static const String learningsEndpoint ='/learnings/';
+  static const String pastReflectionsEndpoint = '/reflections-chat/past-reflection/';
+  static const String newConversationEndpoint = '/reflections-chat/chat/conversations/new/';
+  static const String retrieveConversationEndpoint = '/reflections-chat/chat/conversations/';
+  static const String newChatMessageEndpoint = '/reflections-chat/chat/';
 
+  // ─── Timeouts ────────────────────────────────────────────────────────────────
   static const int connectTimeoutSeconds = 30;
   static const int receiveTimeoutSeconds = 30;
 }

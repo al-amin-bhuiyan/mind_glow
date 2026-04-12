@@ -49,5 +49,9 @@
 		<true/>
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>Speech to text is needed to allow you to talk to the AI</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Microphone access is needed to record your voice</string>
 	</dict>
 </plist>

@@ -1,7 +1,12 @@
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../../services/token_storage_service.dart';
+import '../../services/journey_service.dart';
+import '../../routes/app_path.dart';
+import '../reflect_controller/reflect_controller.dart';
 
 /// Journey Controller - Manages journey screen state and data
 /// Follows OOP principles with proper encapsulation
@@ -22,6 +27,9 @@ class JourneyController extends GetxController {
 
   /// Show/hide filter menu
   final RxBool showFilterMenu = false.obs;
+
+  /// Loading state for past reflections
+  final RxBool isLoadingReflections = false.obs;
 
   /// List of past reflections
   final RxList<ReflectionItem> reflections = <ReflectionItem>[].obs;
@@ -59,34 +67,51 @@ class JourneyController extends GetxController {
   }
 
   /// Load reflections from data source
-  void _loadReflections() {
-    // Mock data - Replace with actual API call or local storage
-    reflections.value = [
-      ReflectionItem(
-        id: '1',
-        date: 'april12',
-        theme: 'selfConfident',
-        description: 'mockDesc1',
-      ),
-      ReflectionItem(
-        id: '2',
-        date: 'april12',
-        theme: 'selfConfident',
-        description: 'mockDesc2',
-      ),
-      ReflectionItem(
-        id: '3',
-        date: 'april12',
-        theme: 'selfConfident',
-        description: 'mockDesc3',
-      ),
-      ReflectionItem(
-        id: '4',
-        date: 'april12',
-        theme: 'relationships',
-        description: 'mockDesc4',
-      ),
-    ];
+  Future<void> _loadReflections() async {
+    try {
+      isLoadingReflections.value = true;
+      if (reflections.isEmpty) {
+        reflections.value = [ReflectionItem(id: 0, date: '', title: '', summary: '')];
+      }
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await JourneyService.instance.getPastReflections(token: token);
+
+      if (response.success && response.data != null) {
+        reflections.value = response.data!;
+      } else {
+        // Mock data
+        reflections.value = [
+          ReflectionItem(
+            id: 1,
+            date: 'april12',
+            title: 'selfConfident',
+            summary: 'mockDesc1',
+          ),
+          ReflectionItem(
+            id: 2,
+            date: 'april12',
+            title: 'selfConfident',
+            summary: 'mockDesc2',
+          ),
+          ReflectionItem(
+            id: 3,
+            date: 'april12',
+            title: 'selfConfident',
+            summary: 'mockDesc3',
+          ),
+          ReflectionItem(
+            id: 4,
+            date: 'april12',
+            title: 'relationships',
+            summary: 'mockDesc4',
+          ),
+        ];
+      }
+    } catch (e) {
+      debugPrint('Error loading past reflections: $e');
+    } finally {
+      isLoadingReflections.value = false;
+    }
   }
 
   // ==================== Public Methods ====================
@@ -125,11 +150,19 @@ class JourneyController extends GetxController {
   }
 
   /// Open reflection detail screen
-  void openReflectionDetail(ReflectionItem reflection) {
-    // Navigate to reflection detail screen
-    // TODO: Add navigation when detail screen is ready
-    // Get.toNamed(AppPath.reflectionDetail, arguments: reflection);
-    print('Opening reflection: ${reflection.theme}');
+  Future<void> openReflectionDetail(BuildContext context, ReflectionItem reflection) async {
+    print('Opening reflection: ${reflection.id} - ${reflection.title}');
+    final reflectController = Get.find<ReflectController>();
+    
+    // Clear and set IDs properly even before the API returns
+    reflectController.currentConversationId = reflection.id;
+    reflectController.messages.clear();
+    
+    await reflectController.loadExistingConversation(reflection.id);
+    
+    if (context.mounted) {
+      context.push(AppPath.reflect);
+    }
   }
 
   /// Refresh reflections data
@@ -145,30 +178,25 @@ class JourneyController extends GetxController {
 /// Model class for Reflection Item
 /// Represents a single reflection entry
 class ReflectionItem {
-  final String id;
+  final int id;
   final String date;
-  final String theme;
-  final String description;
-  final DateTime? createdAt;
+  final String title;
+  final String summary;
 
   ReflectionItem({
     required this.id,
     required this.date,
-    required this.theme,
-    required this.description,
-    this.createdAt,
+    required this.title,
+    required this.summary,
   });
 
   /// Factory constructor from JSON
   factory ReflectionItem.fromJson(Map<String, dynamic> json) {
     return ReflectionItem(
-      id: json['id'] ?? '',
-      date: json['date'] ?? '',
-      theme: json['theme'] ?? '',
-      description: json['description'] ?? '',
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : null,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '0') ?? 0,
+      date: json['date']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      summary: json['summary']?.toString() ?? '',
     );
   }
 
@@ -177,9 +205,8 @@ class ReflectionItem {
     return {
       'id': id,
       'date': date,
-      'theme': theme,
-      'description': description,
-      'createdAt': createdAt?.toIso8601String(),
+      'title': title,
+      'summary': summary,
     };
   }
 }

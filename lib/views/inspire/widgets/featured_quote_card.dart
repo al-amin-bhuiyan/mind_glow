@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mind_glow/l10n/app_localizations.dart';
+import 'package:mind_glow/utils/app_colors.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../utils/app_fonts.dart';
 
@@ -49,14 +51,30 @@ class FeaturedQuoteCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  _getLocalized(context, quote.text),
-                  style: AppFonts.manropeSemiBold(
-                    fontSize: 16.sp,
-                    color: const Color(0xFF1E1E1E),
-                    height: 1.50,
+                if (quote.text == 'featuredQuoteText' || quote.text.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.h),
+                      child: SizedBox(
+                        width: 40.w,
+                        height: 40.h,
+                        child: LoadingAnimationWidget.flickr(
+                          leftDotColor: Colors.white24,
+                          rightDotColor: AppColors.googlebuttonColor,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    _getLocalized(context, quote.text),
+                    style: AppFonts.manropeSemiBold(
+                      fontSize: 16.sp,
+                      color: const Color(0xFF1E1E1E),
+                      height: 1.50,
+                    ),
                   ),
-                ),
                 if (quote.author.isNotEmpty)
                   Padding(
                     padding: EdgeInsets.only(top: 8.h),

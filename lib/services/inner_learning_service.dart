@@ -10,6 +10,31 @@ class InnerLearningService {
 
   final ApiService _apiService = ApiService.instance;
 
+  Future<ApiResponse<LearningModel>> generateLearningInfo({required String topic, String? token}) async {
+    final response = await _apiService.post(
+      endpoint: AppConstants.learningsEndpoint,
+      body: {'topic': topic},
+      token: token,
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = LearningModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse generated learning response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Failed to generate learning.',
+      statusCode: response.statusCode,
+    );
+  }
+
   Future<ApiResponse<List<LearningModel>>> getLearnings({String? token}) async {
     final response = await _apiService.get(
       endpoint: AppConstants.learningsEndpoint,
@@ -18,11 +43,15 @@ class InnerLearningService {
 
     if (response.success && response.data != null) {
       try {
-        final List<dynamic> dataList;
-        if (response.data!.containsKey('data')) {
+        List<dynamic> dataList = [];
+        
+        if (response.data!.containsKey('results')) {
+          dataList = response.data!['results'] as List<dynamic>;
+        } else if (response.data!.containsKey('data')) {
            dataList = response.data!['data'] as List<dynamic>;
         } else {
-           dataList = []; // Fallback, shouldn't reach here if list returned directly
+           // Maybe it's a direct list wrapped implicitly, or empty
+           dataList = []; 
         }
 
         final learnings = dataList

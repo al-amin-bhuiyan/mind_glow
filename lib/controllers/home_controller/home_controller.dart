@@ -6,12 +6,13 @@ import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../../services/inspiration_service.dart';
 import '../../services/token_storage_service.dart';
+import '../reflect_controller/reflect_controller.dart';
 
 /// Controller for Home Screen - handles home page logic
 class HomeController extends GetxController {
   // Observable states
   final RxBool isLoading = false.obs;
-  final RxString userName = 'Emma'.obs;
+  final RxString userName = ''.obs;
 
   // New states for User Summary
   final RxInt reflectionsCount = 0.obs;
@@ -25,15 +26,24 @@ class HomeController extends GetxController {
   // ==================== Public Methods ====================
 
   /// Handle start reflections button tap
-  void onStartReflections(BuildContext context) {
-    // Navigate to reflections blob screen with animation
-    context.push(AppPath.reflectblob);
+  void onStartReflections(BuildContext context) async {
+    // Navigate to reflections blob screen with animation after creating conv
+    isLoading.value = true;
+    try {
+      final reflectController = Get.find<ReflectController>();
+      await reflectController.startNewConversation();
+      if (context.mounted) {
+        context.push(AppPath.reflectblob);
+      }
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   /// Handle start session button tap
   void onStartSession(BuildContext context) {
     // Navigate to reflections blob screen with animation
-    context.push(AppPath.reflectblob);
+    //context.push(AppPath.reflectblob);
   }
 
   /// Update user name
@@ -49,10 +59,24 @@ class HomeController extends GetxController {
   }
 
   void _loadUserData() {
-    // TODO: Load user data from API or local storage
-    userName.value = 'Emma';
     _fetchUserSummary();
     _fetchDailyQuote();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await AuthService.instance.getUserProfile(token: token);
+
+      if (response.success && response.data != null) {
+        if (response.data!.fullName.isNotEmpty) {
+          updateUserName(response.data!.fullName);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching user profile: $e');
+    }
   }
 
   Future<void> _fetchDailyQuote() async {

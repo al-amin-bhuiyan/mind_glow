@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:flutter_typing_indicator/flutter_typing_indicator.dart';
 import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/reflect_controller/reflect_controller.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
@@ -123,14 +124,107 @@ class ReflectScreen extends StatelessWidget {
 
   /// Build Messages List
   Widget _buildMessagesList(ReflectController controller) {
-    return Obx(
-          () => ListView.builder(
+    return Obx(() {
+      final itemCount = controller.messages.length + (controller.isLoading.value ? 1 : 0);
+      return ListView.builder(
         padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 16.h),
-        itemCount: controller.messages.length,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
+          if (index == controller.messages.length && controller.isLoading.value) {
+            return _buildTypingBubble();
+          }
           final message = controller.messages[index];
-          return _buildMessageBubble(message);
+          final previousMessage = index > 0 ? controller.messages[index - 1] : null;
+
+          final showDate = previousMessage == null ||
+              message.timestamp.year != previousMessage.timestamp.year ||
+              message.timestamp.month != previousMessage.timestamp.month ||
+              message.timestamp.day != previousMessage.timestamp.day;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (showDate) _buildDateSeparator(message.timestamp),
+              _buildMessageBubble(message),
+            ],
+          );
         },
+      );
+    });
+  }
+
+  /// Build Date Separator
+  Widget _buildDateSeparator(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final formattedDate = '$day/$month/${date.year}';
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.h),
+      child: Row(
+        children: [
+          Expanded(child: Divider(color: const Color(0xFFC3A95E).withValues(alpha: 0.3), thickness: 1)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w),
+            child: Text(
+              formattedDate,
+              style: AppFonts.poppinsRegular(fontSize: 12.sp, color: const Color(0xFF78706B)),
+            ),
+          ),
+          Expanded(child: Divider(color: const Color(0xFFC3A95E).withValues(alpha: 0.3), thickness: 1)),
+        ],
+      ),
+    );
+  }
+
+  /// Build Typing Bubble
+  Widget _buildTypingBubble() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 46.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // AI Avatar
+          Container(
+            width: 32.w,
+            height: 32.h,
+            margin: EdgeInsets.only(right: 10.w),
+            child: Center(
+              child: SvgPicture.asset(
+                CustomAssets.ai_voice_icon,
+                width: 30.w,
+                height: 30.h,
+              ),
+            ),
+          ),
+
+          // Message Bubble
+          Flexible(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment(0.00, 0.50),
+                  end: Alignment(1.00, 0.50),
+                  colors: [Color(0xFFA75711), Color(0xFFFFBD00)],
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(20.r),
+                  topRight: Radius.circular(20.r),
+                  bottomLeft: Radius.circular(4.r),
+                  bottomRight: Radius.circular(20.r),
+                ),
+              ),
+              child: TypingIndicator(
+                backgroundColor: Colors.transparent,
+                dotColor: Colors.white,
+                dotSize: 6.sp,
+                padding: 0,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -138,7 +232,7 @@ class ReflectScreen extends StatelessWidget {
   /// Build Message Bubble
   Widget _buildMessageBubble(ChatMessage message) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 46.h),
+      padding: EdgeInsets.only(bottom: 20.h),
       child: Row(
         mainAxisAlignment: message.isUser
             ? MainAxisAlignment.end
@@ -163,35 +257,50 @@ class ReflectScreen extends StatelessWidget {
 
           // Message Bubble
           Flexible(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                gradient: message.isUser
-                    ? LinearGradient(
-                  begin: Alignment(0.00, 0.50),
-                  end: Alignment(1.00, 0.50),
-                  colors: [const Color(0xFF2C2E2F), const Color(0xFF8B9195)],
-                )
-                    : LinearGradient(
-                  begin: Alignment(0.00, 0.50),
-                  end: Alignment(1.00, 0.50),
-                  colors: [const Color(0xFFA75711), const Color(0xFFFFBD00)],
+            child: Column(
+              crossAxisAlignment: message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                  decoration: BoxDecoration(
+                    gradient: message.isUser
+                        ? LinearGradient(
+                      begin: Alignment(0.00, 0.50),
+                      end: Alignment(1.00, 0.50),
+                      colors: [const Color(0xFF2C2E2F), const Color(0xFF8B9195)],
+                    )
+                        : LinearGradient(
+                      begin: Alignment(0.00, 0.50),
+                      end: Alignment(1.00, 0.50),
+                      colors: [const Color(0xFFA75711), const Color(0xFFFFBD00)],
+                    ),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(20.r),
+                      topRight: Radius.circular(20.r),
+                      bottomLeft: message.isUser ? Radius.circular(20.r) : Radius.circular(4.r),
+                      bottomRight: message.isUser ? Radius.circular(4.r) : Radius.circular(20.r),
+                    ),
+                  ),
+                  child: Text(
+                    message.text,
+                    style: AppFonts.poppinsRegular(
+                      fontSize: 14.sp,
+                      color: Colors.white,
+                      height: 1.4,
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.r),
-                  topRight: Radius.circular(20.r),
-                  bottomLeft: message.isUser ? Radius.circular(20.r) : Radius.circular(4.r),
-                  bottomRight: message.isUser ? Radius.circular(4.r) : Radius.circular(20.r),
-                ),
-              ),
-              child: Text(
-                message.text,
-                style: AppFonts.poppinsRegular(
-                  fontSize: 14.sp,
-                  color: Colors.white,
-                  height: 1.4,
-                ),
-              ),
+                if (message.isUser) ...[
+                  SizedBox(height: 4.h),
+                  Text(
+                    '${message.timestamp.hour.toString().padLeft(2, '0')}:${message.timestamp.minute.toString().padLeft(2, '0')}',
+                    style: AppFonts.poppinsRegular(
+                      fontSize: 10.sp,
+                      color: const Color(0xFF78706B),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
 
@@ -251,7 +360,10 @@ class ReflectScreen extends StatelessWidget {
                       ),
                       maxLines: null,
                       textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => controller.sendMessage(),
+                      onSubmitted: (_) {
+                        controller.sendMessage();
+                        FocusScope.of(context).unfocus();
+                      },
                     ),
                   ),
 
@@ -259,7 +371,10 @@ class ReflectScreen extends StatelessWidget {
 
                   // Send Button inside text field
                   GestureDetector(
-                    onTap: () => controller.sendMessage(),
+                    onTap: () {
+                      controller.sendMessage();
+                      FocusScope.of(context).unfocus();
+                    },
                     child: SvgPicture.asset(
                       CustomAssets.send_icon,
                       width: 24.w,
@@ -276,11 +391,11 @@ class ReflectScreen extends StatelessWidget {
           // Voice Button
           GestureDetector(
             onTap: () => controller.toggleRecording(context),
-            child: Container(
+            child: Obx(() => Container(
               width: 50.w,
               height: 50.h,
               decoration: BoxDecoration(
-                color: const Color(0x33C3A95E),
+                color: controller.isRecording.value ? Colors.red.withValues(alpha: 0.3) : const Color(0x33C3A95E),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -289,9 +404,10 @@ class ReflectScreen extends StatelessWidget {
                   width: 24.w,
                   height: 24.h,
                   fit: BoxFit.contain,
+                  color: controller.isRecording.value ? Colors.red : null,
                 ),
               ),
-            ),
+            )),
           ),
         ],
       ),

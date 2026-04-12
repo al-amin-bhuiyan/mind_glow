@@ -46,7 +46,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String goodMorning(String name) {
-    return 'Good Morning $name,';
+    return 'Hello , $name,';
   }
 
   @override

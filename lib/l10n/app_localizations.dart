@@ -175,7 +175,7 @@ abstract class AppLocalizations {
   /// No description provided for @goodMorning.
   ///
   /// In en, this message translates to:
-  /// **'Good Morning {name},'**
+  /// **'Hello , {name},'**
   String goodMorning(String name);
 
   /// No description provided for @quietSpaceAwaits.

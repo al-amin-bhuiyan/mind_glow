@@ -6,6 +6,7 @@ import '../models/resend_otp_model.dart';
 import '../models/complete_profile_model.dart';
 import '../models/change_password_model.dart';
 import '../models/user_summary_model.dart';
+import '../models/user_profile_model.dart';
 import '../utils/app_constants.dart';
 import 'api_service.dart';
 
@@ -239,6 +240,32 @@ class AuthService {
 
     return ApiResponse.error(
       message: response.errorMessage ?? 'Failed to load user summary.',
+      statusCode: response.statusCode,
+    );
+  }
+
+  Future<ApiResponse<UserProfileModel>> getUserProfile({
+    String? token,
+  }) async {
+    final response = await _apiService.get(
+      endpoint: AppConstants.userProfileEndpoint,
+      token: token,
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = UserProfileModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse user profile response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Failed to load user profile.',
       statusCode: response.statusCode,
     );
   }

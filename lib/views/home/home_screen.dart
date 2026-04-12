@@ -4,7 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:mind_glow/l10n/app_localizations.dart';
+import 'package:mind_glow/utils/app_colors.dart';
 
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../controllers/home_controller/home_controller.dart';
@@ -129,13 +131,43 @@ class HomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() => Text(
-          AppLocalizations.of(context)!.goodMorning(controller.userName.value),
-          style: AppFonts.poppinsMedium(
-            fontSize: 18.sp,
-            color: const Color(0xFF292423),
-          ),
-        )),
+        Obx(() {
+          if (controller.userName.value.isEmpty) {
+            return Row(
+              children: [
+                Text(
+                  'Hello ',
+                  style: AppFonts.poppinsMedium(
+                    fontSize: 18.sp,
+                    color: const Color(0xFF292423),
+                  ),
+                ),
+                SizedBox(
+                  width: 24.w,
+                  height: 24.h,
+                  child: LoadingAnimationWidget.progressiveDots(
+                    color: AppColors.googlebuttonColor,
+                    size: 24.r,
+                  ),
+                ),
+                Text(
+                  ' 👋',
+                  style: AppFonts.poppinsMedium(
+                    fontSize: 18.sp,
+                    color: const Color(0xFF292423),
+                  ),
+                ),
+              ],
+            );
+          }
+          return Text(
+            'Hello, ${controller.userName.value} 👋',
+            style: AppFonts.poppinsMedium(
+              fontSize: 18.sp,
+              color: const Color(0xFF292423),
+            ),
+          );
+        }),
         SizedBox(height: 2.h),
         Text(
           AppLocalizations.of(context)!.quietSpaceAwaits,
@@ -341,9 +373,9 @@ class HomeScreen extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 30.w,
-          height: 30.h,
-          padding: EdgeInsets.all(3.w),
+          width: 28.w,
+          height: 28.h,
+          padding: EdgeInsets.all(1.w),
           decoration: ShapeDecoration(
             color: const Color(0x4CC3A95E),
             shape: RoundedRectangleBorder(
@@ -356,7 +388,7 @@ class HomeScreen extends StatelessWidget {
             height: 24.h,
           ),
         ),
-        SizedBox(width: 4.w),
+        SizedBox(width: 2.w),
         Text(
           text,
           style: TextStyle(
@@ -414,17 +446,31 @@ class HomeScreen extends StatelessWidget {
             child: Obx(() => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  controller.dailyQuote.value.isEmpty 
-                    ? AppLocalizations.of(context)!.growthBeginsText
-                    : controller.dailyQuote.value,
-                  style: TextStyle(
-                    color: Colors.black.withValues(alpha: 0.60),
-                    fontSize: 14.sp,
-                    fontFamily: 'Manrope',
-                    fontWeight: FontWeight.w400,
+                if (controller.dailyQuote.value.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20.h),
+                      child: SizedBox(
+                        width: 40.w,
+                        height: 40.h,
+                        child: LoadingAnimationWidget.flickr(
+                          leftDotColor: Colors.white24,
+                          rightDotColor: AppColors.googlebuttonColor,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    controller.dailyQuote.value,
+                    style: TextStyle(
+                      color: Colors.black.withValues(alpha: 0.60),
+                      fontSize: 14.sp,
+                      fontFamily: 'Manrope',
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
-                ),
                 if (controller.dailyQuote.value.isNotEmpty && controller.quoteAuthor.value.isNotEmpty)
                   Padding(
                     padding: EdgeInsets.only(top: 8.h),

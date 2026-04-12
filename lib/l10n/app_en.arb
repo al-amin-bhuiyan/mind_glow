@@ -12,7 +12,7 @@
   "supportAndHelp": "Support & Help",
   "logout": "Logout",
   "logOut": "Log Out",
-  "goodMorning": "Good Morning {name},",
+  "goodMorning": "Hello , {name},",
   "@goodMorning": {
     "placeholders": {
       "name": {

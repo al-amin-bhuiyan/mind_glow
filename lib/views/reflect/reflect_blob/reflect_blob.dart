@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wave_blob/wave_blob.dart';
 import '../../../controllers/reflect_controller/reflect_controller.dart';
-import '../../../routes/app_path.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../widgets/custom_assets.dart';
@@ -346,11 +345,11 @@ class ReflectBlobScreen extends StatelessWidget {
           // Voice Button
           GestureDetector(
             onTap: () => controller.toggleRecording(context),
-            child: Container(
+            child: Obx(() => Container(
               width: 50.w,
               height: 50.h,
               decoration: BoxDecoration(
-                color: const Color(0x33C3A95E),
+                color: controller.isRecording.value ? Colors.red.withValues(alpha: 0.3) : const Color(0x33C3A95E),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -359,9 +358,10 @@ class ReflectBlobScreen extends StatelessWidget {
                   width: 24.w,
                   height: 24.h,
                   fit: BoxFit.contain,
+                  color: controller.isRecording.value ? Colors.red : null,
                 ),
               ),
-            ),
+            )),
           ),
         ],
       ),
