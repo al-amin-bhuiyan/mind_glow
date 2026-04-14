@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../../../../utils/app_colors.dart';
-import '../../../../../widgets/custom_assets.dart';
-import '../../../../../widgets/custom_back_button.dart';
-import '../../../../../widgets/custom_button.dart';
-import 'change_password_controller.dart';
 
-/// Change Password Screen - Allows users to change their password
-class ChangePasswordScreen extends StatelessWidget {
-  const ChangePasswordScreen({super.key});
+import '../../utils/app_colors.dart';
+import '../../widgets/custom_assets.dart';
+import '../../widgets/custom_back_button.dart';
+import '../../widgets/custom_button.dart';
+import '../../controllers/change_password_from_forget_password_controller/change_password_from_forget_password_controller.dart';
+
+/// Change Password From Forget Screen
+class ChangePasswordFromForgetScreen extends StatelessWidget {
+  final String? email;
+  final String? code;
+  
+  const ChangePasswordFromForgetScreen({super.key, this.email, this.code});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ChangePasswordController());
+    final controller = Get.put(ChangePasswordFromForgetController());
+
+    if (email != null && email!.isNotEmpty && code != null && code!.isNotEmpty) {
+      controller.setCredentials(email!, code!);
+    }
 
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage(CustomAssets.backgroundimage),
             fit: BoxFit.cover,
@@ -30,7 +38,7 @@ class ChangePasswordScreen extends StatelessWidget {
           child: Column(
             children: [
               // App Bar
-              _buildAppBar(controller,context),
+              _buildAppBar(controller, context),
 
               // Content
               Expanded(
@@ -56,16 +64,24 @@ class ChangePasswordScreen extends StatelessWidget {
   }
 
   /// Build App Bar
-  Widget _buildAppBar(ChangePasswordController controller,BuildContext context) {
+  Widget _buildAppBar(ChangePasswordFromForgetController controller, BuildContext context) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 16.h),
       child: Row(
         children: [
-          CustomBackButton(onPressed: () => controller.goBack(context), width: 30, height: 30, backgroundColor: Colors.black.withValues(alpha: 0.10), borderRadius: 100, color: Colors.black, size: 24,),
+          CustomBackButton(
+            onPressed: () => controller.goBack(context),
+            width: 30,
+            height: 30,
+            backgroundColor: Colors.black.withOpacity(0.10),
+            borderRadius: 100,
+            color: Colors.black,
+            size: 24,
+          ),
           Expanded(
             child: Text(
-              'Change Password ',
+              'Reset Password',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
@@ -83,23 +99,14 @@ class ChangePasswordScreen extends StatelessWidget {
   }
 
   /// Build Password Fields
-  Widget _buildPasswordFields(ChangePasswordController controller, BuildContext context) {
-    return Container(
+  Widget _buildPasswordFields(ChangePasswordFromForgetController controller, BuildContext context) {
+    return SizedBox(
       width: 350.w,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Current Password
-          Obx(() => _buildPasswordField(
-            label: 'Current Password',
-            controller: controller.currentPasswordController,
-            isVisible: controller.isCurrentPasswordVisible.value,
-            onToggleVisibility: controller.toggleCurrentPasswordVisibility,
-          )),
-          SizedBox(height: 24.h),
-
           // New Password
           Obx(() => _buildPasswordField(
             label: 'New Password',
@@ -167,11 +174,10 @@ class ChangePasswordScreen extends StatelessWidget {
             isVisible
                 ? Icons.visibility_outlined
                 : Icons.visibility_off_outlined,
-            color: Color(0xFF80869A),
+            color: const Color(0xFF80869A),
             size: 20.w,
           ),
           onPressed: onToggleVisibility,
-
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.r),

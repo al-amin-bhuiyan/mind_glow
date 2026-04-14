@@ -17,11 +17,13 @@ class LoginUserModel {
   final int id;
   final String email;
   final bool isSuperuser;
+  final String role;
 
   const LoginUserModel({
     required this.id,
     required this.email,
     required this.isSuperuser,
+    this.role = 'user',
   });
 
   factory LoginUserModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class LoginUserModel {
       id: json['id'] as int? ?? 0,
       email: json['email'] as String? ?? '',
       isSuperuser: json['is_superuser'] as bool? ?? false,
+      role: json['role'] as String? ?? 'user',
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../../../../routes/app_path.dart';
 import 'delete_account_dialog.dart';
 
@@ -46,12 +47,12 @@ class SecurityController extends GetxController {
       // TODO: Implement API call to delete account
       await Future.delayed(const Duration(seconds: 2)); // Simulate API call
 
-      Get.snackbar(
-        'Success',
-        'Account deleted successfully',
-        snackPosition: SnackPosition.TOP,
+      Fluttertoast.showToast(
+        msg: 'Account deleted successfully',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
         backgroundColor: const Color(0xFFED6B61),
-        colorText: Colors.white,
+        textColor: Colors.white,
       );
 
       // Navigate to login screen after deletion
@@ -59,12 +60,12 @@ class SecurityController extends GetxController {
         context.go(AppPath.login);
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to delete account: ${e.toString()}',
-        snackPosition: SnackPosition.TOP,
+      Fluttertoast.showToast(
+        msg: 'Failed to delete account: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
-        colorText: Colors.white,
+        textColor: Colors.white,
       );
     } finally {
       isDeleting.value = false;

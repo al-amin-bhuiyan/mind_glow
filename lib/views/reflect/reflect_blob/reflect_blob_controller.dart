@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mind_glow/routes/app_path.dart';
 
 /// Reflect Blob Controller - Manages the initial reflect welcome screen state
 class ReflectBlobController extends GetxController {
@@ -43,18 +46,18 @@ class ReflectBlobController extends GetxController {
   /// Navigate back
   void goBack(BuildContext context) {
     // stopAnimation();
-    Navigator.of(context).pop();
+    context.push(AppPath.home);
   }
 
   /// Start reflection session
   void startReflection(BuildContext context) {
     stopAnimation();
     // TODO: Navigate to main reflect chat screen or show input dialog
-    Get.snackbar(
-      'Starting Reflection',
-      'Opening reflection session...',
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 2),
-    );
+    Fluttertoast.showToast(
+        msg: 'Opening reflection session...',
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT);
   }
 }

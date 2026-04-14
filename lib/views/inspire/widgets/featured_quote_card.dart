@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:get/get.dart';
 import 'package:mind_glow/l10n/app_localizations.dart';
 import 'package:mind_glow/utils/app_colors.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
@@ -46,7 +47,7 @@ class FeaturedQuoteCard extends StatelessWidget {
         children: [
           // Quote text
           Padding(
-            padding: EdgeInsets.only(bottom: 30.h),
+            padding: EdgeInsets.only(bottom: 30.h, right: 30.w), // Added right padding to avoid overlap with bookmark
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -113,13 +114,31 @@ class FeaturedQuoteCard extends StatelessWidget {
                     ),
                   ),
                   // SizedBox(width: 4.w),
-                  Icon(
-                    Icons.arrow_forward_ios,
-                    size: 14.sp,
-                    color: const Color(0xFF5D4708),
-                  ),
+
                 ],
               ),
+            ),
+          ),
+
+          // Bookmark icon at top right
+          Positioned(
+            right: 0,
+            top: 0,
+            child: GestureDetector(
+              onTap: () {
+                final InspireController controller = Get.find<InspireController>();
+                controller.toggleQuoteBookmark();
+              },
+              child: Obx(() {
+                final InspireController controller = Get.find<InspireController>();
+                return Icon(
+                  controller.isQuoteBookmarked.value 
+                      ? Icons.bookmark 
+                      : Icons.bookmark_border,
+                  color: const Color(0xFF5D4708),
+                  size: 24.sp,
+                );
+              }),
             ),
           ),
         ],

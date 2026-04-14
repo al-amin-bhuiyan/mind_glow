@@ -44,7 +44,7 @@ class CustomNavBarController extends GetxController {
       case 0:
         return AppPath.home;
       case 1:
-        return AppPath.reflect;
+        return AppPath.reflectblob;
       case 2:
         return AppPath.journey;
       case 3:

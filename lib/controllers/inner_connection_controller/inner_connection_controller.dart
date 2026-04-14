@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import '../../services/auth_service.dart';
 import '../../services/token_storage_service.dart';
 import '../../models/complete_profile_model.dart';
-import '../../widgets/custom_snackbar.dart';
 
 /// Inner Connection Controller - Manages inner connection questionnaire flow
 class InnerConnectionController extends GetxController {
@@ -338,19 +338,7 @@ class InnerConnectionController extends GetxController {
       );
 
       if (response.success) {
-        if (Get.context != null) {
-          CustomSnackBar.showSuccess(
-            Get.context!,
-            message: response.data?.message ?? 'Profile saved successfully!',
-          );
-        } else {
-          Get.snackbar(
-            'Success',
-            response.data?.message ?? 'Profile saved successfully!',
-            backgroundColor: Colors.green.withValues(alpha: 0.9),
-            colorText: Colors.white,
-          );
-        }
+        Fluttertoast.showToast(msg: response.data?.message ?? 'Profile saved successfully!', gravity: ToastGravity.TOP, backgroundColor: Colors.green, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
         
         Future.delayed(const Duration(milliseconds: 500), () {
           if (onComplete != null) {
@@ -358,28 +346,11 @@ class InnerConnectionController extends GetxController {
           }
         });
       } else {
-        if (Get.context != null) {
-          CustomSnackBar.showError(
-            Get.context!,
-            message: response.errorMessage ?? 'Failed to save profile.',
-          );
-        } else {
-          Get.snackbar(
-            'Error',
-            response.errorMessage ?? 'Failed to save profile.',
-            backgroundColor: Colors.red.withValues(alpha: 0.9),
-            colorText: Colors.white,
-          );
-        }
+        Fluttertoast.showToast(msg: response.errorMessage ?? 'Failed to save profile.', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
       }
     } catch (e) {
       debugPrint('❌ Profile complete error: $e');
-      if (Get.context != null) {
-        CustomSnackBar.showError(
-          Get.context!,
-          message: 'An error occurred while saving profile.',
-        );
-      }
+      Fluttertoast.showToast(msg: 'An error occurred while saving profile.', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
     } finally {
       isLoading.value = false;
     }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import '../../routes/app_path.dart';
+import '../../services/auth_service.dart';
 
 /// Reset Password Controller - Manages reset password screen state and logic
 class ResetPasswordController extends GetxController {
@@ -58,21 +60,42 @@ class ResetPasswordController extends GetxController {
     try {
       isLoading.value = true;
 
-      // TODO: Implement your password reset logic here
-      await Future.delayed(const Duration(seconds: 2)); // Simulating API call
+      final email = emailController.text.trim();
+      final response = await AuthService.instance.sendPasswordResetOtp(email: email);
 
-      // Navigate to OTP verification screen with email
-      if (context.mounted) {
-        context.push(AppPath.otpVerification, extra: {'email': emailController.text});
+      if (response.success) {
+        Fluttertoast.showToast(
+          msg: response.data?.detail ?? 'OTP sent to email.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+
+        // Navigate to OTP verification screen with email and isPasswordReset flag
+        if (context.mounted) {
+          context.push(AppPath.otpVerification, extra: {
+            'email': email,
+            'isPasswordReset': true,
+          });
+          emailController.clear();
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: response.errorMessage ?? 'Failed to send reset code. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
-
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to send reset code. Please try again.',
-        snackPosition: SnackPosition.TOP,
+      Fluttertoast.showToast(
+        msg: 'Something went wrong. Please try again.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
-        colorText: Colors.white,
+        textColor: Colors.white,
       );
     } finally {
       isLoading.value = false;

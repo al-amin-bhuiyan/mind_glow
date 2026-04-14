@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
 
 import '../../../../../../models/contact_support_model.dart';
 import '../../../../../../services/support_service.dart';
@@ -110,13 +112,12 @@ class ContactSupportController extends GetxController {
 
       if (response.success && response.data != null) {
         // Show success message
-        Get.snackbar(
-          'Success',
-          'Your message has been sent successfully. We\'ll respond as soon as we can.',
-          snackPosition: SnackPosition.BOTTOM,
+        Fluttertoast.showToast(
+          msg: 'Your message has been sent successfully. We\'ll respond as soon as we can.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
           backgroundColor: const Color(0xFF4CAF50),
-          colorText: Colors.white,
-          duration: const Duration(seconds: 3),
+          textColor: Colors.white,
         );
 
         // Clear form
@@ -139,13 +140,12 @@ class ContactSupportController extends GetxController {
   }
 
   void _showError(String error) {
-    Get.snackbar(
-      'Error',
-      error,
-      snackPosition: SnackPosition.BOTTOM,
+    Fluttertoast.showToast(
+      msg: error,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
       backgroundColor: const Color(0xFFE53935),
-      colorText: Colors.white,
-      duration: const Duration(seconds: 3),
+      textColor: Colors.white,
     );
   }
 

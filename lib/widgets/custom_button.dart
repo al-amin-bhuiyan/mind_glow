@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_fonts.dart';
 import 'custom_assets.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 /// A project-wide button that uses the image background defined in `CustomAssets.buttonbackground`.
 ///
@@ -22,6 +23,7 @@ class CustomButton extends StatelessWidget {
   final TextStyle? textStyle;
   final EdgeInsetsGeometry? padding;
   final BorderRadiusGeometry? borderRadius;
+  final Widget? customLoadingWidget;
 
   const CustomButton({
     Key? key,
@@ -35,6 +37,7 @@ class CustomButton extends StatelessWidget {
     this.textStyle,
     this.padding,
     this.borderRadius,
+    this.customLoadingWidget,
   }) : super(key: key);
 
   @override
@@ -44,14 +47,10 @@ class CustomButton extends StatelessWidget {
 
     final Widget content = Center(
       child: isLoading
-          ? SizedBox(
-        width: 20.w,
-        height: 20.h,
-        child: CircularProgressIndicator(
-          strokeWidth: 2.w,
-          valueColor: AlwaysStoppedAnimation<Color>(AppColors.whiteColor),
-        ),
-      )
+          ? (customLoadingWidget ?? LoadingAnimationWidget.progressiveDots(
+              color: AppColors.whiteColor,
+              size: 40.w,
+            ))
           : Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,

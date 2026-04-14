@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:toastification/toastification.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../../routes/app_path.dart';
 import '../../services/auth_service.dart';
-import '../../widgets/custom_snackbar.dart';
 
 /// SignUp Controller - Manages sign up screen state and logic
 class SignUpController extends GetxController {
@@ -102,9 +102,12 @@ class SignUpController extends GetxController {
 
       if (response.success && response.data != null) {
         final data = response.data!;
-        CustomSnackBar.showSuccess(
-          context,
-          message: data.message.isNotEmpty ? data.message : 'Sign up successful! OTP sent to email.',
+        Fluttertoast.showToast(
+          msg: data.message.isNotEmpty ? data.message : 'Sign up successful! OTP sent to email.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
         );
 
         // Navigate to OTP page after successful signup
@@ -112,16 +115,22 @@ class SignUpController extends GetxController {
           context.push(AppPath.otpVerification, extra: {'email': email});
         }
       } else {
-        CustomSnackBar.showError(
-          context,
-          message: response.errorMessage ?? 'Sign up failed. Please try again.',
+        Fluttertoast.showToast(
+          msg: response.errorMessage ?? 'Sign up failed. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     } catch (e) {
       debugPrint('💥 [SignUpController] Exception caught during signup: $e');
-      CustomSnackBar.showError(
-        context,
-        message: 'Sign up failed: ${e.toString()}',
+      Fluttertoast.showToast(
+        msg: 'Sign up failed: ${e.toString()}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     } finally {
       isLoading.value = false;

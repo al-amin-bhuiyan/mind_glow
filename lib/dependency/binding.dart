@@ -1,4 +1,5 @@
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 
 import '../controllers/journey_controller/journey_controller.dart';
@@ -15,6 +16,13 @@ import '../views/inner_learning/relationship_learning/relationship_learning_cont
 import '../views/profile/widgets/subscription/subscription_controller.dart';
 import '../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 
+class InitialBinding extends Bindings {
+  @override
+  void dependencies() {
+    Dependency.initDeferred();
+  }
+}
+
 class Dependency {
   /// Initialize only critical controllers needed for app startup
   /// This runs synchronously during app initialization for fast startup
@@ -27,40 +35,40 @@ class Dependency {
     Get.lazyPut<CustomNavBarController>(() => CustomNavBarController(), fenix: true);
 
     // Lazy load LoginController when needed
-    Get.lazyPut<LoginController>(() => LoginController());
+    Get.lazyPut<LoginController>(() => LoginController(), fenix: true);
 
     // Lazy load Subscription when needed
-    Get.lazyPut<SubscriptionController>(() => SubscriptionController());
+    Get.lazyPut<SubscriptionController>(() => SubscriptionController(), fenix: true);
 
     // Lazy load SignUpController when needed
-    Get.lazyPut<SignUpController>(() => SignUpController());
+    Get.lazyPut<SignUpController>(() => SignUpController(), fenix: true);
 
     // Lazy load ResetPasswordController when needed
-    Get.lazyPut<ResetPasswordController>(() => ResetPasswordController());
+    Get.lazyPut<ResetPasswordController>(() => ResetPasswordController(), fenix: true);
 
     // Lazy load OtpScreenController when needed
-    Get.lazyPut<OtpScreenController>(() => OtpScreenController());
+    Get.lazyPut<OtpScreenController>(() => OtpScreenController(), fenix: true);
 
     // Lazy load InnerConnectionController when needed
-    Get.lazyPut<InnerConnectionController>(() => InnerConnectionController());
+    Get.lazyPut<InnerConnectionController>(() => InnerConnectionController(), fenix: true);
 
     // Lazy load HomeController when needed
-    Get.lazyPut<HomeController>(() => HomeController());
+    Get.lazyPut<HomeController>(() => HomeController(), fenix: true);
 
     // Lazy load ReflectController when needed
-    Get.lazyPut<ReflectController>(() => ReflectController());
+    Get.lazyPut<ReflectController>(() => ReflectController(), fenix: true);
 
     // Lazy load JourneyController when needed
-    Get.lazyPut<JourneyController>(() => JourneyController());
+    Get.lazyPut<JourneyController>(() => JourneyController(), fenix: true);
 
     // Lazy load InnerLearningController when needed
-    Get.lazyPut<InnerLearningController>(() => InnerLearningController());
+    Get.lazyPut<InnerLearningController>(() => InnerLearningController(), fenix: true);
 
     // Lazy load RelationshipLearningController when needed
-    Get.lazyPut<RelationshipLearningController>(() => RelationshipLearningController());
+    Get.lazyPut<RelationshipLearningController>(() => RelationshipLearningController(), fenix: true);
 
     // Lazy load ProfileController when needed
-    Get.lazyPut<ProfileController>(() => ProfileController());
+    Get.lazyPut<ProfileController>(() => ProfileController(), fenix: true);
   }
 
   /// Legacy method for backward compatibility - deprecated

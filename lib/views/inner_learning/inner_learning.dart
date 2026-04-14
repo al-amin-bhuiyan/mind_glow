@@ -325,11 +325,11 @@ class InnerLearningScreen extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.99),
                 ),
                 decoration: InputDecoration(
-              //    hintText: AppLocalizations.of(context)!.inputHintRelationship,
+                  hintText: AppLocalizations.of(context)!.inputHintRelationship,
                   hintStyle: AppFonts.poppinsRegular(
-                    fontSize: 12.sp,
+                    fontSize: 14.sp,
                     color: Colors.black.withValues(alpha: 0.50), // Standard soft hint color
-                    height: 1.20,
+                    height: 0.1,
                   ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.zero,

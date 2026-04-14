@@ -74,7 +74,7 @@ class InspireScreen extends StatelessWidget {
                         physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.symmetric(horizontal: 26.w),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 10.h),
 
@@ -269,59 +269,73 @@ class InspireScreen extends StatelessWidget {
         SizedBox(height: 12.h),
 
         // Inspiration cards grid
-        Obx(() => Column(
-          children: [
-            // First row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (controller.savedInspirations.isNotEmpty)
-                  InspirationCard(
-                    inspiration: controller.savedInspirations[0],
-                    onTap: () => controller.openInspirationDetail(
-                        controller.savedInspirations[0]),
-                    onBookmarkTap: () => controller.toggleBookmark(
-                        controller.savedInspirations[0].id),
-                  ),
-                if (controller.savedInspirations.length > 1)
-                  InspirationCard(
-                    inspiration: controller.savedInspirations[1],
-                    onTap: () => controller.openInspirationDetail(
-                        controller.savedInspirations[1]),
-                    onBookmarkTap: () => controller.toggleBookmark(
-                        controller.savedInspirations[1].id),
-                  ),
-              ],
-            ),
+        Obx(() {
+          final items = controller.savedInspirations;
+          if (items.isEmpty) return const SizedBox.shrink();
 
-            SizedBox(height: 8.h),
+          final itemCount = controller.showAllQuotes.value ? items.length : (items.length > 4 ? 4 : items.length);
 
-            // Second row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (controller.savedInspirations.length > 2)
-                  InspirationCard(
-                    inspiration: controller.savedInspirations[2],
-                    onTap: () => controller.openInspirationDetail(
-                        controller.savedInspirations[2]),
-                    onBookmarkTap: () => controller.toggleBookmark(
-                        controller.savedInspirations[2].id),
+          final rows = <Widget>[];
+          for (int i = 0; i < itemCount; i += 2) {
+            rows.add(
+              Padding(
+                padding: EdgeInsets.only(bottom: 16.h),
+                child: IntrinsicHeight(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: InspirationCard(
+                          inspiration: items[i],
+                          onTap: () => controller.openInspirationDetail(context, items[i]),
+                          onBookmarkTap: () => controller.toggleBookmark(items[i].id),
+                        ),
+                      ),
+                      SizedBox(width: 15.w), // Space between cards
+                      if (i + 1 < itemCount)
+                        Expanded(
+                          child: InspirationCard(
+                            inspiration: items[i + 1],
+                            onTap: () => controller.openInspirationDetail(context, items[i + 1]),
+                            onBookmarkTap: () => controller.toggleBookmark(items[i + 1].id),
+                          ),
+                        )
+                      else
+                        Expanded(child: const SizedBox()), // Placeholder to maintain constraints
+                    ],
                   ),
-                if (controller.savedInspirations.length > 3)
-                  InspirationCard(
-                    inspiration: controller.savedInspirations[3],
-                    onTap: () => controller.openInspirationDetail(
-                        controller.savedInspirations[3]),
-                    onBookmarkTap: () => controller.toggleBookmark(
-                        controller.savedInspirations[3].id),
+                ),
+              ),
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...rows,
+              
+              if (items.length > 4) ...[
+                Center(
+                  child: TextButton(
+                    onPressed: controller.toggleShowAllQuotes,
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF5D4708),
+                    ),
+                    child: Text(
+                      controller.showAllQuotes.value 
+                          ? 'Show less' 
+                          : 'Show more',
+                      style: AppFonts.manropeSemiBold(
+                        fontSize: 14.sp,
+                      ),
+                    ),
                   ),
+                ),
               ],
-            ),
-          ],
-        )),
+            ],
+          );
+        }),
       ],
     );
   }
@@ -356,48 +370,16 @@ class InspireScreen extends StatelessWidget {
         SizedBox(height: 12.h),
 
         // Video thumbnails grid
-        Obx(() => Column(
-          children: [
-            // First row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (controller.inspirationVideos.isNotEmpty)
-                  VideoThumbnailCard(
-                    video: controller.inspirationVideos[0],
-                    onTap: () => controller.playVideo(
-                        controller.inspirationVideos[0]),
-                  ),
-                if (controller.inspirationVideos.length > 1)
-                  VideoThumbnailCard(
-                    video: controller.inspirationVideos[1],
-                    onTap: () => controller.playVideo(
-                        controller.inspirationVideos[1]),
-                  ),
-              ],
-            ),
-
-            SizedBox(height: 8.h),
-
-            // Second row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (controller.inspirationVideos.length > 2)
-                  VideoThumbnailCard(
-                    video: controller.inspirationVideos[2],
-                    onTap: () => controller.playVideo(
-                        controller.inspirationVideos[2]),
-                  ),
-                if (controller.inspirationVideos.length > 3)
-                  VideoThumbnailCard(
-                    video: controller.inspirationVideos[3],
-                    onTap: () => controller.playVideo(
-                        controller.inspirationVideos[3]),
-                  ),
-              ],
-            ),
-          ],
+        Obx(() => Wrap(
+          spacing: 4.w,
+          runSpacing: 8.h,
+          alignment: WrapAlignment.spaceBetween,
+          children: controller.inspirationVideos.map((video) {
+            return VideoThumbnailCard(
+              video: video,
+              onTap: () => controller.playVideo(context, video),
+            );
+          }).toList(),
         )),
       ],
     );

@@ -7,6 +7,7 @@ import 'package:mind_glow/l10n/app_localizations.dart';
 import '../../controllers/reflect_controller/reflect_controller.dart';
 import '../../controllers/custom_nav_bar_widgets/custom_nav_bar_widgets.dart';
 import '../../utils/app_fonts.dart';
+import '../../utils/app_constants.dart';
 import '../../widgets/custom_assets.dart';
 import '../../widgets/custom_back_button.dart';
 
@@ -145,7 +146,7 @@ class ReflectScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (showDate) _buildDateSeparator(message.timestamp),
-              _buildMessageBubble(message),
+              _buildMessageBubble(message, controller),
             ],
           );
         },
@@ -230,7 +231,7 @@ class ReflectScreen extends StatelessWidget {
   }
 
   /// Build Message Bubble
-  Widget _buildMessageBubble(ChatMessage message) {
+  Widget _buildMessageBubble(ChatMessage message, ReflectController controller) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20.h),
       child: Row(
@@ -306,18 +307,24 @@ class ReflectScreen extends StatelessWidget {
 
           // User Avatar (right side for user messages)
           if (message.isUser) ...[
-            Container(
+            Obx(() => Container(
               width: 32.w,
               height: 32.h,
               margin: EdgeInsets.only(left: 10.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.r),
                 image: DecorationImage(
-                  image: AssetImage(CustomAssets.person_icon),
+                  image: controller.userProfilePicture.value.isNotEmpty
+                      ? NetworkImage(
+                          controller.userProfilePicture.value.startsWith('http')
+                              ? controller.userProfilePicture.value
+                              : '${AppConstants.baseUrl.replaceAll(RegExp(r'/v1/?$'), '')}${controller.userProfilePicture.value}',
+                        ) as ImageProvider
+                      : AssetImage(CustomAssets.person_icon),
                   fit: BoxFit.cover,
                 ),
               ),
-            ),
+            )),
           ],
         ],
       ),

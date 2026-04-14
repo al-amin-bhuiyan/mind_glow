@@ -24,6 +24,7 @@ import '../views/journey/journey.dart';
 import '../views/login/login_screen.dart';
 import '../views/sign_up/sign_up.dart';
 import '../views/reset_password/reset_password.dart';
+import '../views/change_password_from_forget_password/change_password_from_forget_password.dart';
 import '../views/otp_screen/otp_screen.dart';
 import '../views/inner_connection/inner_connection.dart';
 import '../views/home/home_screen.dart';
@@ -59,12 +60,23 @@ class RoutePath {
         builder: (context, state) => const ResetPasswordScreen(),
       ),
       GoRoute(
+        path: AppPath.changePasswordFromForget,
+        name: 'changePasswordFromForget',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final email = extra?['email'] as String?;
+          final code = extra?['code'] as String?;
+          return ChangePasswordFromForgetScreen(email: email, code: code);
+        },
+      ),
+      GoRoute(
         path: AppPath.otpVerification,
         name: 'otpVerification',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final email = extra?['email'] as String?;
-          return OtpScreen(email: email);
+          final isPasswordReset = extra?['isPasswordReset'] as bool? ?? false;
+          return OtpScreen(email: email, isPasswordReset: isPasswordReset);
         },
       ),
       GoRoute(

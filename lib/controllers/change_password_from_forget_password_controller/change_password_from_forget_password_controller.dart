@@ -2,37 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mind_glow/routes/app_path.dart';
 
-import '../../../../../../services/auth_service.dart';
-import '../../../../../../services/token_storage_service.dart';
+import '../../services/auth_service.dart';
+import '../../services/token_storage_service.dart';
 
-/// Change Password Controller - Manages password change functionality
-class ChangePasswordController extends GetxController {
+/// Change Password From Forget Controller
+class ChangePasswordFromForgetController extends GetxController {
   // Dependencies
   final AuthService _authService = AuthService.instance;
 
   // Text editing controllers
-  final currentPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   // Observable states
-  final RxBool isCurrentPasswordVisible = false.obs;
   final RxBool isNewPasswordVisible = false.obs;
   final RxBool isConfirmPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
+  final RxString userEmail = ''.obs;
+  final RxString otpCode = ''.obs;
 
   @override
   void onClose() {
-    currentPasswordController.dispose();
     newPasswordController.dispose();
     confirmPasswordController.dispose();
     super.onClose();
   }
 
-  /// Toggle current password visibility
-  void toggleCurrentPasswordVisibility() {
-    isCurrentPasswordVisible.value = !isCurrentPasswordVisible.value;
+  /// Set the credentials from the previous screen
+  void setCredentials(String email, String code) {
+    userEmail.value = email;
+    otpCode.value = code;
   }
 
   /// Toggle new password visibility
@@ -47,17 +48,6 @@ class ChangePasswordController extends GetxController {
 
   /// Validate password fields
   bool _validatePasswords() {
-    if (currentPasswordController.text.isEmpty) {
-      Fluttertoast.showToast(
-        msg: 'Please enter your current password',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.TOP,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-      );
-      return false;
-    }
-
     if (newPasswordController.text.isEmpty) {
       Fluttertoast.showToast(
         msg: 'Please enter a new password',
@@ -112,18 +102,16 @@ class ChangePasswordController extends GetxController {
     isLoading.value = true;
 
     try {
-      final token = await TokenStorageService.instance.getAccessToken();
-
-      final response = await _authService.changePassword(
-        oldPassword: currentPasswordController.text.trim(),
-        newPassword1: newPasswordController.text.trim(),
-        newPassword2: confirmPasswordController.text.trim(),
-        token: token,
+      final response = await _authService.confirmPasswordReset(
+        email: userEmail.value,
+        code: otpCode.value,
+        newPassword: newPasswordController.text.trim(),
+        confirmPassword: confirmPasswordController.text.trim(),
       );
 
       if (response.success && response.data != null) {
         Fluttertoast.showToast(
-          msg: response.data!.detail,
+          msg: response.data?.detail ?? 'Password reset successfully. You can now log in.',
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           backgroundColor: Colors.green,
@@ -131,28 +119,27 @@ class ChangePasswordController extends GetxController {
         );
 
         // Clear fields
-        currentPasswordController.clear();
         newPasswordController.clear();
         confirmPasswordController.clear();
 
-        // Navigate back
+        // Once changed, redirect to login
         if (context.mounted) {
-          context.pop();
+          context.go('/login');
         }
       } else {
         Fluttertoast.showToast(
-          msg: response.errorMessage ?? 'Failed to change password. Make sure current password is right.',
+          msg: response.errorMessage ?? 'Failed to reset password. Please try again.',
           toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
+          gravity: ToastGravity.TOP,
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );
       }
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Failed to change password: ${e.toString()}',
+        msg: 'Failed to reset password: ${e.toString()}',
         toastLength: Toast.LENGTH_LONG,
-        gravity: ToastGravity.BOTTOM,
+        gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );

@@ -5,6 +5,7 @@ import '../models/otp_verify_model.dart';
 import '../models/resend_otp_model.dart';
 import '../models/complete_profile_model.dart';
 import '../models/change_password_model.dart';
+import '../models/password_reset_model.dart';
 import '../models/user_summary_model.dart';
 import '../models/user_profile_model.dart';
 import '../utils/app_constants.dart';
@@ -154,6 +155,99 @@ class AuthService {
     );
   }
 
+  Future<ApiResponse<PasswordResetResponseModel>> sendPasswordResetOtp({
+    required String email,
+  }) async {
+    final request = PasswordResetRequestModel(email: email);
+
+    final response = await _apiService.post(
+      endpoint: AppConstants.passwordResetEndpoint,
+      body: request.toJson(),
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = PasswordResetResponseModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse password reset response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Failed to send password reset OTP. Please try again.',
+      statusCode: response.statusCode,
+    );
+  }
+
+  Future<ApiResponse<PasswordResetVerifyResponseModel>> verifyPasswordResetOtp({
+    required String email,
+    required String code,
+  }) async {
+    final request = PasswordResetVerifyRequestModel(email: email, code: code);
+
+    final response = await _apiService.post(
+      endpoint: AppConstants.passwordResetVerifyEndpoint,
+      body: request.toJson(),
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = PasswordResetVerifyResponseModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse password reset verification response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Verification failed. Please try again.',
+      statusCode: response.statusCode,
+    );
+  }
+
+  Future<ApiResponse<PasswordResetConfirmResponseModel>> confirmPasswordReset({
+    required String email,
+    required String code,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final request = PasswordResetConfirmRequestModel(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+      confirmPassword: confirmPassword,
+    );
+
+    final response = await _apiService.post(
+      endpoint: AppConstants.passwordResetConfirmEndpoint,
+      body: request.toJson(),
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = PasswordResetConfirmResponseModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse password reset confirm response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Password reset failed. Please try again.',
+      statusCode: response.statusCode,
+    );
+  }
+
   Future<ApiResponse<CompleteProfileResponseModel>> completeProfile({
     required CompleteProfileRequestModel request,
     String? token, // If it requires token
@@ -268,5 +362,59 @@ class AuthService {
       message: response.errorMessage ?? 'Failed to load user profile.',
       statusCode: response.statusCode,
     );
+  }
+
+  /// Resends signup OTP
+  Future<ApiResponse<void>> resendSignupOtp({
+    required String email,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        endpoint: AppConstants.resendOtpEndpoint,
+        body: {'email': email},
+      );
+
+      if (response.success) {
+        return ApiResponse.success(data: null);
+      }
+      return ApiResponse.error(
+        message: response.errorMessage ?? 'Failed to resend OTP',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.error(
+        message: 'Connection error: $e',
+      );
+    }
+  }
+
+  /// Sends Contact Support message
+  Future<ApiResponse<void>> contactSupport({
+    required String name,
+    required String email,
+    required String message,
+  }) async {
+    try {
+      final response = await _apiService.post(
+        endpoint: AppConstants.contactSupportEndpoint,
+        body: {
+          'name': name,
+          'email': email,
+          'message': message,
+        },
+      );
+
+      if (response.success) {
+        return ApiResponse.success(data: null);
+      }
+      return ApiResponse.error(
+        message: response.errorMessage ?? 'Failed to send message',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      return ApiResponse.error(
+        message: 'Connection error: $e',
+      );
+    }
   }
 }

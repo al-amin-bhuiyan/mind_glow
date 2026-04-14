@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../../services/inspiration_service.dart';
 import '../../services/token_storage_service.dart';
+import '../../views/inspire/widgets/youtube_player_screen.dart';
 
 /// Inspire Controller - Manages inspire screen state and data
 /// Follows OOP principles with proper encapsulation
@@ -23,10 +26,19 @@ class InspireController extends GetxController {
     subtitle: 'featuredQuoteSubtitle',
   ).obs;
 
+  /// Is featured quote bookmarked
+  final RxBool isQuoteBookmarked = false.obs;
+  
+  /// Is bookmarking in progress
+  final RxBool isBookmarking = false.obs;
+
+  /// Show all quotes instead of just 4
+  final RxBool showAllQuotes = false.obs;
+
   // ==================== Constants ====================
 
-  /// Available category options
-  final List<String> categories = ['categoryVoices', 'categoryMeaning', 'categoryPerspectives', 'categoryWhatMatters'];
+  /// Available category options (now observable to populate from API)
+  final RxList<String> categories = <String>[].obs;
 
   // ==================== Lifecycle Methods ====================
 
@@ -36,9 +48,26 @@ class InspireController extends GetxController {
     _loadSavedInspirations();
     _loadInspirationVideos();
     _fetchDailyQuote();
+    _fetchTopics();
   }
 
   // ==================== Private Methods ====================
+
+  Future<void> _fetchTopics() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await InspirationService.instance.getTopics(token: token);
+
+      if (response.success && response.data != null) {
+        categories.value = response.data!;
+        if (categories.isNotEmpty && selectedCategory.value == 'categoryVoices') {
+          selectedCategory.value = categories.first;
+        }
+      }
+    } catch (e) {
+      debugPrint('Error fetching topics in Inspire: $e');
+    }
+  }
 
   Future<void> _fetchDailyQuote() async {
     try {
@@ -52,6 +81,8 @@ class InspireController extends GetxController {
             subtitle: 'featuredQuoteSubtitle',
             author: response.data!.author,
           );
+          // reset bookmark state when fetching new quote
+          isQuoteBookmarked.value = false;
         }
       }
     } catch (e) {
@@ -59,70 +90,127 @@ class InspireController extends GetxController {
     }
   }
 
+  /// Toggle bookmark for the featured quote
+  Future<void> toggleQuoteBookmark() async {
+    if (isBookmarking.value) return;
+    
+    final quoteData = featuredQuote.value;
+    if (quoteData.text == 'featuredQuoteText' || quoteData.text.isEmpty) return;
+
+    if (isQuoteBookmarked.value) {
+      // Find the quote in saved inspirations to delete it
+      final existingItem = savedInspirations.firstWhereOrNull(
+        (item) => item.title == quoteData.text && item.author == quoteData.author
+      );
+      
+      if (existingItem != null) {
+        isBookmarking.value = true;
+        // The toggleBookmark method already handles removing and API calls
+        await toggleBookmark(existingItem.id);
+        isQuoteBookmarked.value = false;
+        isBookmarking.value = false;
+      } else {
+        isQuoteBookmarked.value = false;
+      }
+      return;
+    }
+
+    try {
+      isBookmarking.value = true;
+      final token = await TokenStorageService.instance.getAccessToken();
+      
+      // Optimistic UI update
+      isQuoteBookmarked.value = true;
+      final optimisticId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+      savedInspirations.insert(0, InspirationItem(
+        id: optimisticId,
+        type: InspirationItemType.quote,
+        title: quoteData.text,
+        savedContext: '',
+        isBookmarked: true,
+        author: quoteData.author,
+      ));
+      
+      final response = await InspirationService.instance.favoriteQuote(
+        quote: quoteData.text,
+        author: quoteData.author,
+        token: token,
+      );
+
+      if (response.success) {
+        _loadSavedInspirations(); // Reload from server to get correct ID
+        Fluttertoast.showToast(
+          msg: "Quote bookmarked successfully!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+      } else {
+        // Revert on failure
+        isQuoteBookmarked.value = false;
+        savedInspirations.removeWhere((item) => item.id == optimisticId);
+        Fluttertoast.showToast(
+          msg: response.errorMessage ?? "Failed to bookmark quote.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      isQuoteBookmarked.value = false;
+      savedInspirations.removeWhere((item) => item.id.startsWith('temp_'));
+      debugPrint('Error bookmarking quote: $e');
+      Fluttertoast.showToast(
+        msg: "An error occurred while bookmarking.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+      );
+    } finally {
+      isBookmarking.value = false;
+    }
+  }
+
   /// Load saved inspirations from data source
-  void _loadSavedInspirations() {
-    // Mock data - Replace with actual API call or local storage
-    savedInspirations.value = [
-      InspirationItem(
-        id: '1',
-        type: InspirationItemType.quote,
-        title: 'mockInspireTitle',
-        savedContext: 'mockContextPatience',
-        isBookmarked: true,
-      ),
-      InspirationItem(
-        id: '2',
-        type: InspirationItemType.roleModel,
-        title: 'mockInspireTitle',
-        savedContext: 'mockContextQuiet',
-        isBookmarked: true,
-      ),
-      InspirationItem(
-        id: '3',
-        type: InspirationItemType.roleModel,
-        title: 'mockInspireTitle',
-        savedContext: 'mockContextPatience',
-        isBookmarked: true,
-      ),
-      InspirationItem(
-        id: '4',
-        type: InspirationItemType.quote,
-        title: 'mockInspireTitle',
-        savedContext: 'mockContextAcceptance',
-        isBookmarked: true,
-      ),
-    ];
+  Future<void> _loadSavedInspirations() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await InspirationService.instance.getFavoriteQuotes(token: token);
+
+      if (response.success && response.data != null) {
+        savedInspirations.value = response.data!
+            .map((json) => InspirationItem(
+                  id: (json['id'] ?? '').toString(),
+                  type: InspirationItemType.quote,
+                  title: json['quote']?.toString() ?? '',
+                  savedContext: '',
+                  isBookmarked: true,
+                  author: json['author']?.toString() ?? 'Unknown Author',
+                ))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Error fetching favorite quotes: $e');
+    }
   }
 
   /// Load inspiration videos from data source
-  void _loadInspirationVideos() {
-    // Mock data - Replace with actual API call or local storage
-    inspirationVideos.value = [
-      VideoItem(
-        id: '1',
-        thumbnailAsset: 'assets/images/video_thumb_1.png',
-        videoUrl: 'https://example.com/video1.mp4',
-        title: 'Inner Peace Journey',
-      ),
-      VideoItem(
-        id: '2',
-        thumbnailAsset: 'assets/images/video_thumb_2.png',
-        videoUrl: 'https://example.com/video2.mp4',
-        title: 'Mindfulness Practice',
-      ),
-      VideoItem(
-        id: '3',
-        thumbnailAsset: 'assets/images/video_thumb_3.png',
-        videoUrl: 'https://example.com/video3.mp4',
-        title: 'Self Discovery',
-      ),
-      VideoItem(
-        id: '4',
-        thumbnailAsset: 'assets/images/video_thumb_1.png',
-        videoUrl: 'https://example.com/video4.mp4',
-        title: 'Emotional Clarity',
-      ),
-    ];
+  Future<void> _loadInspirationVideos() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await InspirationService.instance.getInspirationVideos(token: token);
+
+      if (response.success && response.data != null) {
+        inspirationVideos.value = response.data!
+            .map((json) => VideoItem.fromJson(json as Map<String, dynamic>))
+            .toList();
+      }
+    } catch (e) {
+      debugPrint('Error fetching inspiration videos: $e');
+    }
   }
 
   // ==================== Public Methods ====================
@@ -133,35 +221,78 @@ class InspireController extends GetxController {
     // TODO: Filter inspirations based on selected category
   }
 
-  /// Toggle bookmark status for an inspiration
-  void toggleBookmark(String inspirationId) {
+  /// Toggle bookmark status for an inspiration (removes it since it's already in the favorites)
+  Future<void> toggleBookmark(String inspirationId) async {
     final index = savedInspirations.indexWhere((item) => item.id == inspirationId);
     if (index != -1) {
-      savedInspirations[index] = savedInspirations[index].copyWith(
-        isBookmarked: !savedInspirations[index].isBookmarked,
-      );
-      savedInspirations.refresh();
+      final removedItem = savedInspirations[index];
+      
+      // Optimistically remove from UI
+      savedInspirations.removeAt(index);
+      
+      try {
+        final token = await TokenStorageService.instance.getAccessToken();
+        final response = await InspirationService.instance.removeFavoriteQuote(
+          id: inspirationId, 
+          token: token,
+        );
+        
+        if (response.success) {
+          Fluttertoast.showToast(
+            msg: "Quote removed from favorites.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
+        } else {
+          // Revert on failure
+          savedInspirations.insert(index, removedItem);
+          Fluttertoast.showToast(
+            msg: response.errorMessage ?? "Failed to remove quote.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
+      } catch (e) {
+        // Revert on failure
+        savedInspirations.insert(index, removedItem);
+        debugPrint('Error removing quote: $e');
+        Fluttertoast.showToast(
+          msg: "An error occurred while removing the quote.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
     }
   }
 
+  /// Toggle showing all quotes
+  void toggleShowAllQuotes() {
+    showAllQuotes.value = !showAllQuotes.value;
+  }
+
   /// Open video player
-  void playVideo(VideoItem video) {
-    // TODO: Implement video player navigation
-    Get.snackbar(
-      'Video',
-      'Playing: ${video.title}',
-      snackPosition: SnackPosition.TOP,
+  void playVideo(BuildContext context, VideoItem video) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => YoutubePlayerScreen(
+          videoUrl: video.videoUrl,
+          title: video.title,
+        ),
+      ),
     );
   }
 
   /// Open inspiration detail
-  void openInspirationDetail(InspirationItem inspiration) {
-    // TODO: Implement inspiration detail navigation
-    Get.snackbar(
-      'Inspiration',
-      'Opening: ${inspiration.title}',
-      snackPosition: SnackPosition.TOP,
-    );
+  void openInspirationDetail(BuildContext context, InspirationItem inspiration) {
+    // The info_popup automatically intercepts the click trigger on the InspirationCard itself.
+    // We no longer display the fluttertoast here.
   }
 }
 
@@ -193,6 +324,7 @@ class InspirationItem {
   final String title;
   final String savedContext;
   final bool isBookmarked;
+  final String? author;
 
   InspirationItem({
     required this.id,
@@ -200,6 +332,7 @@ class InspirationItem {
     required this.title,
     required this.savedContext,
     this.isBookmarked = false,
+    this.author,
   });
 
   /// Get type label
@@ -219,6 +352,7 @@ class InspirationItem {
     String? title,
     String? savedContext,
     bool? isBookmarked,
+    String? author,
   }) {
     return InspirationItem(
       id: id ?? this.id,
@@ -226,21 +360,37 @@ class InspirationItem {
       title: title ?? this.title,
       savedContext: savedContext ?? this.savedContext,
       isBookmarked: isBookmarked ?? this.isBookmarked,
+      author: author ?? this.author,
     );
   }
 }
 
 /// Video item model
 class VideoItem {
-  final String id;
-  final String thumbnailAsset;
-  final String videoUrl;
   final String title;
+  final String videoUrl;
+  final String description;
+  final String channel;
+  final String thumbnailAsset;
+  final String publishedAt;
 
   VideoItem({
-    required this.id,
-    required this.thumbnailAsset,
-    required this.videoUrl,
     required this.title,
+    required this.videoUrl,
+    required this.description,
+    required this.channel,
+    required this.thumbnailAsset,
+    required this.publishedAt,
   });
+
+  factory VideoItem.fromJson(Map<String, dynamic> json) {
+    return VideoItem(
+      title: json['title'] ?? '',
+      videoUrl: json['url'] ?? '',
+      description: json['description'] ?? '',
+      channel: json['channel'] ?? '',
+      thumbnailAsset: json['thumbnail'] ?? '',
+      publishedAt: json['published_at'] ?? '',
+    );
+  }
 }

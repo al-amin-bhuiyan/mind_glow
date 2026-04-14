@@ -92,12 +92,46 @@ class ApiService {
     }
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> delete({
+    required String endpoint,
+    String? token,
+    int? timeoutSeconds,
+  }) async {
+    try {
+      final uri = _buildUri(endpoint);
+      debugPrint('🌐 [ApiService] DELETE Request to: $uri');
+      final headers = _defaultHeaders(token: token);
+      debugPrint('🌐 [ApiService] Headers: $headers');
+
+      final response = await _client
+          .delete(uri, headers: headers)
+          .timeout(
+            Duration(seconds: timeoutSeconds ?? AppConstants.connectTimeoutSeconds),
+          );
+
+      return _handleResponse(response);
+    } on SocketException {
+      return ApiResponse.error(
+        message: 'No internet connection. Please check your network.',
+        statusCode: 0,
+      );
+    } catch (e) {
+      return ApiResponse.error(
+        message: 'Something went wrong: ${e.toString()}',
+        statusCode: 0,
+      );
+    }
+  }
+
   ApiResponse<Map<String, dynamic>> _handleResponse(http.Response response) {
     try {
       debugPrint('🟢 API Status Code: ${response.statusCode}');
-      debugPrint('🟢 API Raw Response: ${response.body}');
       
-      final trimmedBody = response.body.trim();
+      // Ensure Proper UTF-8 decoding to preserve special characters in strings like "bɘniɒlqxƎ noiɟɔɘlʇɘЯ ɒvɒᒐ"
+      final String decodedBody = utf8.decode(response.bodyBytes);
+      debugPrint('🟢 API Raw Response: $decodedBody');
+      
+      final trimmedBody = decodedBody.trim();
       final Map<String, dynamic> data;
       if (trimmedBody.isEmpty) {
         data = <String, dynamic>{};

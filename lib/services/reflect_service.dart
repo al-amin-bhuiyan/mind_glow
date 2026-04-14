@@ -29,6 +29,14 @@ class ReflectService {
     return response;
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> getLastConversation({required String token}) async {
+    final response = await _apiService.get(
+      endpoint: AppConstants.lastConversationEndpoint,
+      token: token,
+    );
+    return response;
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> sendChatMessage({
     required String message,
     required int conversationId,

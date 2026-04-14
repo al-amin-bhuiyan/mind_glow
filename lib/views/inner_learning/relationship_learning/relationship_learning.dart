@@ -8,6 +8,7 @@ import '../../../widgets/custom_back_button.dart';
 import 'relationship_learning_controller.dart';
 import '../../../models/learning_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class RelationshipLearningScreen extends StatelessWidget {
   const RelationshipLearningScreen({super.key});
@@ -113,11 +114,13 @@ class RelationshipLearningScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          learningArgs?.title ?? AppLocalizations.of(context)!.learnAboutRelationships,
-          style: AppFonts.poppinsMedium(
-            fontSize: 18.sp,
-            color: const Color(0xFF292423),
+        MarkdownBody(
+          data: '# ${learningArgs?.title ?? AppLocalizations.of(context)!.learnAboutRelationships}',
+          styleSheet: MarkdownStyleSheet(
+            h1: AppFonts.poppinsMedium(
+              fontSize: 20.sp,
+              color: const Color(0xFF292423),
+            ),
           ),
         ),
         SizedBox(height: 8.h),
@@ -175,12 +178,21 @@ class RelationshipLearningScreen extends StatelessWidget {
         ],
       ),
       child: SingleChildScrollView(
-        child: Text(
-          learningArgs?.description ?? AppLocalizations.of(context)!.relationshipLearningContent,
-          style: AppFonts.poppinsRegular(
-            fontSize: 14.sp,
-            color: Colors.black.withValues(alpha: 0.60),
-            height: 1.70,
+        child: MarkdownBody(
+          data: learningArgs?.description ?? AppLocalizations.of(context)!.relationshipLearningContent,
+          styleSheet: MarkdownStyleSheet(
+            p: AppFonts.poppinsRegular(
+              fontSize: 14.sp,
+              color: Colors.black.withValues(alpha: 0.60),
+              height: 1.70,
+            ),
+            h1: AppFonts.poppinsSemiBold(fontSize: 22.sp, color: Colors.black),
+            h2: AppFonts.poppinsSemiBold(fontSize: 20.sp, color: Colors.black),
+            h3: AppFonts.poppinsSemiBold(fontSize: 18.sp, color: Colors.black),
+            listBullet: AppFonts.poppinsRegular(
+              fontSize: 14.sp,
+              color: Colors.black.withValues(alpha: 0.60),
+            ),
           ),
         ),
       ),

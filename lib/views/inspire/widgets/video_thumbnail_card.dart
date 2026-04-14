@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
-import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../widgets/custom_assets.dart';
 
 /// Video Thumbnail Card Widget
@@ -28,7 +27,7 @@ class VideoThumbnailCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
           image: DecorationImage(
-            image: AssetImage(video.thumbnailAsset),
+            image: NetworkImage(video.thumbnailAsset),
             fit: BoxFit.cover,
           ),
           shape: RoundedRectangleBorder(

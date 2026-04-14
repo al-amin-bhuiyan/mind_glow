@@ -23,16 +23,8 @@ void main() async {
   // Don't call WidgetsFlutterBinding.ensureInitialized() unless absolutely needed
   // It's called automatically by runApp()
 
-  // Initialize ONLY the splash controller (1 controller = fastest startup)
-  //Dependency.initCritical();
-
   // Start the app immediately
   runApp(const MyApp());
-
-  // Load everything else asynchronously after first frame
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    Dependency.initDeferred();
-  });
 
   //  runApp(
   //    DevicePreview(
@@ -55,6 +47,7 @@ class MyApp extends StatelessWidget {
         return GetMaterialApp.router(
           debugShowCheckedModeBanner: false,
           theme: _lightTheme,
+          initialBinding: InitialBinding(),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

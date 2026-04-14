@@ -1,10 +1,11 @@
 import 'package:mind_glow/routes/app_path.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/inspiration_service.dart';
+import '../../services/reflect_service.dart';
 import '../../services/token_storage_service.dart';
 import '../reflect_controller/reflect_controller.dart';
 
@@ -26,24 +27,48 @@ class HomeController extends GetxController {
   // ==================== Public Methods ====================
 
   /// Handle start reflections button tap
-  void onStartReflections(BuildContext context) async {
-    // Navigate to reflections blob screen with animation after creating conv
-    isLoading.value = true;
-    try {
-      final reflectController = Get.find<ReflectController>();
-      await reflectController.startNewConversation();
-      if (context.mounted) {
-        context.push(AppPath.reflectblob);
-      }
-    } finally {
-      isLoading.value = false;
-    }
+  void onStartReflections(BuildContext context) {
+    // Just navigate to reflections blob screen, wait for user input to create session
+    final reflectController = Get.find<ReflectController>();
+    reflectController.currentConversationId = null;
+    reflectController.messages.clear();
+    context.push(AppPath.reflectblob);
   }
 
   /// Handle start session button tap
-  void onStartSession(BuildContext context) {
-    // Navigate to reflections blob screen with animation
-    //context.push(AppPath.reflectblob);
+  void onStartSession(BuildContext context) async {
+    isLoading.value = true;
+
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      final reflectController = Get.find<ReflectController>();
+
+      // 1. Get the last conversation ID
+      final lastConvResponse = await ReflectService.instance.getLastConversation(token: token ?? '');
+      
+      bool success = false;
+      
+      if (lastConvResponse.success && lastConvResponse.data != null && lastConvResponse.data!['conversation_id'] != null) {
+        final int conversationId = lastConvResponse.data!['conversation_id'];
+        
+        // 2. Load the existing conversation history
+        success = await reflectController.loadExistingConversation(conversationId);
+      } else {
+        // Fallback: start a completely new conversation if no previous session is found
+        success = await reflectController.startNewConversation();
+      }
+
+      isLoading.value = false;
+
+      // Only navigate if we successfully loaded/started the conversation state
+      if (success) {
+        context.push(AppPath.reflect);
+      }
+      
+    } catch (e) {
+      isLoading.value = false;
+      debugPrint('Error starting session: $e');
+    }
   }
 
   /// Update user name

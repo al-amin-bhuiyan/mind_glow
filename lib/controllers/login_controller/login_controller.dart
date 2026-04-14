@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import '../../widgets/custom_snackbar.dart';
 import 'package:flutter/foundation.dart'; // Added for debugPrint
 import '../../routes/app_path.dart';
 
@@ -12,6 +12,14 @@ import '../../services/session_data_isolation_service.dart';
 
 /// Login Controller - Manages login screen state and logic
 class LoginController extends GetxController {
+  final bool isFromOnboarding;
+  final Function(BuildContext)? onLoginSuccess;
+
+  LoginController({
+    this.isFromOnboarding = false,
+    this.onLoginSuccess,
+  });
+
   // Form key for validation
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -26,6 +34,8 @@ class LoginController extends GetxController {
   // Observable states
   final RxBool isPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
+  final RxBool isGoogleAuthLoading = false.obs;
+  final RxBool isAppleAuthLoading = false.obs;
   final RxBool isEmailValid = false.obs;
   final RxBool rememberMe = false.obs;
 
@@ -162,78 +172,108 @@ class LoginController extends GetxController {
         UserSessionService.instance.isLoaded.value = true;
         debugPrint('🧠 Global user session updated');
 
-        CustomSnackBar.showSuccess(context, message: 'Login successful!');
-        debugPrint('🎉 Success toast displayed');
-
-        if (context.mounted) {
-          debugPrint('🔄 Navigating to AppPath.home');
-          context.push(AppPath.home);
+        // Handle successful login routing based on role
+        if (!isFromOnboarding && onLoginSuccess != null) {
+          onLoginSuccess!(context);
+        } else if (data.user.role == 'expert') {
+          context.pushReplacement('/inner_learning');
+        } else {
+          // Normal user routing
+          context.pushReplacement(AppPath.home);
         }
+
+        Fluttertoast.showToast(
+          msg: 'Login successful!',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
       } else {
-        final errorMsg =
-            response.errorMessage ??
-            'Login failed. Please check your credentials.';
-        debugPrint('❌ Login failed from API: $errorMsg');
-        CustomSnackBar.showError(context, message: errorMsg);
+        String errorMsg = response.errorMessage ?? 'Invalid email or password';
+        Fluttertoast.showToast(
+          msg: errorMsg,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
       }
     } catch (e) {
-      debugPrint('💥 Exception caught during login: $e');
-      CustomSnackBar.showError(
-        context,
-        message: 'Login failed: ${e.toString()}',
+      Fluttertoast.showToast(
+        msg: 'Connection error. Please try again.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     } finally {
       isLoading.value = false;
-      debugPrint('⏹️ signInWithEmail process completed, loading set to false');
     }
   }
 
-  /// Sign in with Google
+  /// Navigate to Onboarding or Home
+  void _navigateOnSocialAuthSuccess(BuildContext context) {
+    if (!isFromOnboarding && onLoginSuccess != null) {
+      onLoginSuccess!(context);
+    } else {
+      context.pushReplacement('/home');
+    }
+  }
+
+  /// Handles Google Sign-In
   Future<void> signInWithGoogle(BuildContext context) async {
-    debugPrint('🚀 Starting signInWithGoogle process');
     try {
-      isLoading.value = true;
+      isGoogleAuthLoading.value = true;
+      await Future.delayed(const Duration(seconds: 1)); // Simulated delay
 
-      // TODO: Implement Google Sign-in logic
-      await Future.delayed(const Duration(seconds: 2));
-
-      CustomSnackBar.showSuccess(
-        context,
-        message: 'Google sign-in successful!',
+      Fluttertoast.showToast(
+        msg: 'Google sign-in successful!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
       );
-      debugPrint('🎉 Google sign-in success toast displayed');
+
+      _navigateOnSocialAuthSuccess(context);
     } catch (e) {
-      debugPrint('💥 Exception caught during Google sign-in: $e');
-      CustomSnackBar.showError(
-        context,
-        message: 'Google sign-in failed: ${e.toString()}',
+      Fluttertoast.showToast(
+        msg: 'Google sign-in failed. Try again.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     } finally {
-      isLoading.value = false;
-      debugPrint('⏹️ signInWithGoogle process completed, loading set to false');
+      isGoogleAuthLoading.value = false;
     }
   }
 
-  /// Sign in with Apple
+  /// Handles Apple Sign-In
   Future<void> signInWithApple(BuildContext context) async {
-    debugPrint('🚀 Starting signInWithApple process');
     try {
-      isLoading.value = true;
+      isAppleAuthLoading.value = true;
+      await Future.delayed(const Duration(seconds: 1)); // Simulated delay
 
-      // TODO: Implement Apple Sign-in logic
-      await Future.delayed(const Duration(seconds: 2));
+      Fluttertoast.showToast(
+        msg: 'Apple sign-in successful!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
 
-      CustomSnackBar.showSuccess(context, message: 'Apple sign-in successful!');
-      debugPrint('🎉 Apple sign-in success toast displayed');
+      _navigateOnSocialAuthSuccess(context);
     } catch (e) {
-      debugPrint('💥 Exception caught during Apple sign-in: $e');
-      CustomSnackBar.showError(
-        context,
-        message: 'Apple sign-in failed: ${e.toString()}',
+      Fluttertoast.showToast(
+        msg: 'Apple sign-in failed. Try again.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
     } finally {
-      isLoading.value = false;
-      debugPrint('⏹️ signInWithApple process completed, loading set to false');
+      isAppleAuthLoading.value = false;
     }
   }
 

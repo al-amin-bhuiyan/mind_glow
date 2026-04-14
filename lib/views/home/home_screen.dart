@@ -281,18 +281,25 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 20.h),
-          CustomButton(
-            label: AppLocalizations.of(context)!.startSession,
-            onPressed:()=> controller.onStartSession(context),
-            height: 44.h,
-            textStyle: TextStyle(
-              color: Colors.white,
-              fontSize: 14.sp,
-              fontFamily: 'Manrope',
-              fontWeight: FontWeight.w400,
-            ),
-            borderRadius: BorderRadius.circular(100.r),
-          ),
+          Obx(() {
+            return CustomButton(
+              label: AppLocalizations.of(context)!.startSession,
+              onPressed: () => controller.onStartSession(context),
+              height: 44.h,
+              textStyle: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontFamily: 'Manrope',
+                fontWeight: FontWeight.w400,
+              ),
+              borderRadius: BorderRadius.circular(100.r),
+              isLoading: controller.isLoading.value,
+              customLoadingWidget: LoadingAnimationWidget.fallingDot(
+                color: Colors.white,
+                size: 30,
+              ),
+            );
+          }),
         ],
       ),
     );

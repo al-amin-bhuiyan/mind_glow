@@ -11,8 +11,9 @@ import '../../widgets/custom_button.dart';
 
 class OtpScreen extends StatelessWidget {
   final String? email;
+  final bool isPasswordReset;
 
-  const OtpScreen({super.key, this.email});
+  const OtpScreen({super.key, this.email, this.isPasswordReset = false});
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +23,9 @@ class OtpScreen extends StatelessWidget {
     if (email != null && email!.isNotEmpty) {
       controller.setEmail(email!);
     }
+    
+    // Set if this is password reset flow
+    controller.setPasswordResetState(isPasswordReset);
 
     return Scaffold(
       body: Stack(

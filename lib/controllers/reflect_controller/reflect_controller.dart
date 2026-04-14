@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../journey_controller/journey_controller.dart';
 
 import '../../services/reflect_service.dart';
+import '../../services/auth_service.dart';
 import '../../services/token_storage_service.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -22,6 +23,9 @@ class ReflectController extends GetxController {
   // Observable for recording state
   final isRecording = false.obs;
 
+  // Observable for user profile picture
+  final RxString userProfilePicture = ''.obs;
+
   late stt.SpeechToText _speech;
   bool _isSpeechInitialized = false;
 
@@ -32,8 +36,22 @@ class ReflectController extends GetxController {
     super.onInit();
     _speech = stt.SpeechToText();
     _initSpeech();
+    _fetchUserProfile();
     // Initially clear, no need for demo messages now since it's driven by real API
     messages.clear();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      final token = await TokenStorageService.instance.getAccessToken();
+      if (token == null) return;
+      final response = await AuthService.instance.getUserProfile(token: token);
+      if (response.success && response.data != null && response.data!.profilePicture != null) {
+        userProfilePicture.value = response.data!.profilePicture!;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user profile in ReflectController: $e');
+    }
   }
 
   Future<void> _initSpeech() async {
@@ -129,6 +147,13 @@ class ReflectController extends GetxController {
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
+    if (currentConversationId == null) {
+      final success = await startNewConversation();
+      if (!success || currentConversationId == null) {
+        return; // failed to create conversation
+      }
+    }
+
     // Add user message locally
     messages.add(ChatMessage(
       text: text,
@@ -138,10 +163,6 @@ class ReflectController extends GetxController {
 
     // Clear input field
     messageController.clear();
-
-    if (currentConversationId == null) {
-      return; // Can't send without conversation ID
-    }
 
     try {
       isLoading.value = true;

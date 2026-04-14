@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../../routes/app_path.dart';
 import '../../views/profile/widgets/logout_dialog.dart';
 import '../../services/auth_state_service.dart';
 import '../../services/token_storage_service.dart';
 import '../../services/session_data_isolation_service.dart';
-import '../../widgets/custom_snackbar.dart';
+// removed custom_snackbar.dart
 
 /// Controller for Profile Screen - handles profile actions and navigation
 class ProfileController extends GetxController {
@@ -120,9 +122,12 @@ class ProfileController extends GetxController {
     } catch (e) {
       debugPrint('❌ Logout failed: $e');
       if (context.mounted) {
-        CustomSnackBar.showError(
-          context,
-          message: 'Logout failed. Please try again.',
+        Fluttertoast.showToast(
+          msg: 'Logout failed. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     }

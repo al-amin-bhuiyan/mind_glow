@@ -4,12 +4,13 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:toastification/toastification.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../routes/app_path.dart';
 import '../../services/auth_service.dart';
 import '../../services/auth_state_service.dart';
 import '../../services/token_storage_service.dart';
-import '../../widgets/custom_snackbar.dart';
+
 
 /// OTP Screen Controller - Manages OTP verification screen state and logic
 class OtpScreenController extends GetxController {
@@ -44,9 +45,13 @@ class OtpScreenController extends GetxController {
   final RxString otp5 = ''.obs;
   final RxString otp6 = ''.obs;
 
+  // Track if this is for password reset
+  final RxBool isPasswordReset = false.obs;
+
   // Timer states
   final RxInt _remainingSeconds = 60.obs;
   final RxBool canResend = true.obs;
+  final RxBool isResending = false.obs;
   Timer? _timer;
 
   // Dependencies
@@ -68,6 +73,11 @@ class OtpScreenController extends GetxController {
   /// Set email from route parameters
   void setEmail(String email) {
     userEmail.value = email;
+  }
+
+  /// Set whether this is a password reset flow
+  void setPasswordResetState(bool value) {
+    isPasswordReset.value = value;
   }
 
   /// Get formatted timer text
@@ -112,15 +122,72 @@ class OtpScreenController extends GetxController {
     final otpCode = getOtpCode();
 
     if (otpCode.length != 6) {
-      CustomSnackBar.showError(context, message: 'Please enter the complete 6-digit code');
+      Fluttertoast.showToast(msg: 'Please enter the complete 6-digit code', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
       return;
     }
 
     if (userEmail.value.isEmpty) {
-      CustomSnackBar.showError(context, message: 'Email not found. Please go back and try again.');
+      Fluttertoast.showToast(msg: 'Email not found. Please go back and try again.', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
       return;
     }
 
+    if (isPasswordReset.value) {
+      await _verifyPasswordResetCode(context, otpCode);
+    } else {
+      await _verifySignupCode(context, otpCode);
+    }
+  }
+
+  Future<void> _verifyPasswordResetCode(BuildContext context, String otpCode) async {
+    try {
+      isLoading.value = true;
+      debugPrint('🔑 Verifying Password Reset OTP for: ${userEmail.value}');
+
+      final response = await _authService.verifyPasswordResetOtp(
+        email: userEmail.value,
+        code: otpCode,
+      );
+
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        debugPrint('✅ ${data.detail}');
+
+        Fluttertoast.showToast(
+          msg: data.detail.isNotEmpty ? data.detail : 'OTP verified successfully.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+        );
+
+        // Small delay so toast is visible
+        await Future.delayed(const Duration(milliseconds: 700));
+
+        // Navigate to create new password screen or next destination
+        if (context.mounted) {
+          context.pushReplacement(AppPath.changePasswordFromForget, extra: {
+            'email': userEmail.value,
+            'code': otpCode,
+          });
+        }
+      } else {
+        Fluttertoast.showToast(
+          msg: response.errorMessage ?? 'Invalid verification code. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ OTP verify error: $e');
+      Fluttertoast.showToast(msg: 'Verification failed. Please try again.', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> _verifySignupCode(BuildContext context, String otpCode) async {
     try {
       isLoading.value = true;
       debugPrint('🔐 Verifying OTP for: ${userEmail.value}');
@@ -143,9 +210,12 @@ class OtpScreenController extends GetxController {
         // Mark auth state as authenticated
         AuthStateService.instance.setAuthenticated();
 
-        CustomSnackBar.showSuccess(
-          context,
-          message: data.message.isNotEmpty ? data.message : 'Email verified successfully! Welcome aboard 🎉',
+        Fluttertoast.showToast(
+          msg: data.message.isNotEmpty ? data.message : 'Email verified successfully! Welcome aboard 🎉',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
         );
 
         // Small delay so toast is visible
@@ -156,14 +226,17 @@ class OtpScreenController extends GetxController {
           context.pushReplacement(AppPath.innerConnection);
         }
       } else {
-        CustomSnackBar.showError(
-          context,
-          message: response.errorMessage ?? 'Invalid verification code. Please try again.',
+        Fluttertoast.showToast(
+          msg: response.errorMessage ?? 'Invalid verification code. Please try again.',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.TOP,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
         );
       }
     } catch (e) {
       debugPrint('❌ OTP verify error: $e');
-      CustomSnackBar.showError(context, message: 'Verification failed. Please try again.');
+      Fluttertoast.showToast(msg: 'Verification failed. Please try again.', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
     } finally {
       isLoading.value = false;
     }
@@ -190,63 +263,70 @@ class OtpScreenController extends GetxController {
     _timer = null;
   }
 
-  /// Resend OTP code
+  /// Resend verification code
   Future<void> resendCode(BuildContext context) async {
-    if (!canResend.value) {
-      CustomSnackBar.showInfo(
-        context,
-        message: 'Please wait $timerText before resending',
-      );
-      return;
-    }
-
-    if (userEmail.value.isEmpty) {
-      CustomSnackBar.showError(
-        context,
-        message: 'Email not found. Please go back and try again.',
-      );
-      return;
-    }
-
-    // Start countdown timer immediately
-    _startTimer();
-    isLoading.value = true;
-
     try {
-      debugPrint('📨 Resending OTP to: ${userEmail.value}');
+      isResending.value = true;
 
-      final response = await _authService.resendOtp(
-        email: userEmail.value,
-      );
+      // Check if it's password reset or standard signup to call the appropriate endpoint
+      final authService = AuthService.instance;
+      final email = userEmail.value;
 
-      if (response.success && response.data != null) {
-        final data = response.data!;
-        
-        CustomSnackBar.showSuccess(
-          context,
-          message: data.message.isNotEmpty ? data.message : 'OTP code has been resent to ${userEmail.value}',
-        );
-
-        // Clear all OTP fields
-        clearOtpFields();
+      if (isPasswordReset.value) {
+        // Password Reset resend flow
+        final response = await authService.sendPasswordResetOtp(email: email);
+        if (response.success) {
+          Fluttertoast.showToast(
+            msg: response.data?.detail ?? 'Code resent successfully',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: response.errorMessage ?? 'Failed to resend code',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
       } else {
-        CustomSnackBar.showError(
-          context,
-          message: response.errorMessage ?? 'Failed to resend code. Please try again.',
-        );
-        _stopTimer();
-        canResend.value = true;
+        // Signup OTP resend flow
+        final response = await authService.resendSignupOtp(email: email);
+        if (response.success) {
+          Fluttertoast.showToast(
+            msg: 'OTP resent successfully',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: response.errorMessage ?? 'Failed to resend code',
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.TOP,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
       }
+
+      // Reset timer
+      _remainingSeconds.value = 60;
+      _startTimer();
     } catch (e) {
-      debugPrint('❌ Resend OTP error: $e');
-      CustomSnackBar.showError(
-        context,
-        message: 'Failed to resend OTP code. Please try again.',
+      Fluttertoast.showToast(
+        msg: 'An error occurred while resending code',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.TOP,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
       );
-      _stopTimer();
-      canResend.value = true;
     } finally {
-      isLoading.value = false;
+      isResending.value = false;
     }
   }
 
@@ -317,13 +397,7 @@ class OtpScreenController extends GetxController {
       }
     } catch (e) {
       // Clipboard error
-      Get.snackbar(
-        'Error',
-        'Failed to paste from clipboard',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      Fluttertoast.showToast(msg: 'Failed to paste from clipboard', gravity: ToastGravity.TOP, backgroundColor: Colors.red, textColor: Colors.white, toastLength: Toast.LENGTH_SHORT);
     }
   }
 
