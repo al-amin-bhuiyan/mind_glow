@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:siri_wave/siri_wave.dart';
-import 'package:wave_blob/wave_blob.dart';
 import '../../../utils/app_colors.dart';
 import '../../../widgets/custom_assets.dart';
 import '../../../widgets/custom_back_button.dart';
@@ -121,72 +119,6 @@ class ReflectVoiceScreen extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // iOS 9 Siri Wave Animation - Three Colored Waves Stacked
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 47.h,
-            child: Obx(() => SizedBox(
-              height: 200.h,
-              width: 1.sw,
-              child: Stack(
-                children: [
-                  // Yellowish Wave (bottom layer)
-                  ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      const Color(0xFFFFC107).withValues(alpha: 0.6),
-                      BlendMode.srcATop,
-                    ),
-                    child: SiriWaveform.ios9(
-                      controller: IOS9SiriWaveformController(
-                        amplitude: controller.isMicPressed.value ? 1.0 : 0,
-                        speed: 0.15,
-                      ),
-                      options: IOS9SiriWaveformOptions(
-                        height: 200.h,
-                        width: 1.sw,
-                      ),
-                    ),
-                  ),
-                  // Orange Wave (middle layer)
-                  ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      const Color(0xFFFF5722).withValues(alpha: 0.5),
-                      BlendMode.srcATop,
-                    ),
-                    child: SiriWaveform.ios9(
-                      controller: IOS9SiriWaveformController(
-                        amplitude: controller.isMicPressed.value ? 1.0 : 0,
-                        speed: 0.18,
-                      ),
-                      options: IOS9SiriWaveformOptions(
-                        height: 200.h,
-                        width: 1.sw,
-                      ),
-                    ),
-                  ),
-                  // Google Button Color Wave (top layer)
-                  ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      AppColors.googlebuttonColor.withValues(alpha: 0.4),
-                      BlendMode.srcATop,
-                    ),
-                    child: SiriWaveform.ios9(
-                      controller: IOS9SiriWaveformController(
-                        amplitude: controller.isMicPressed.value ? 1.0 : 0,
-                        speed: 0.12,
-                      ),
-                      options: IOS9SiriWaveformOptions(
-                        height: 200.h,
-                        width: 1.sw,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )),
-          ),
-
           // Control Buttons
           Positioned(
             bottom: 90.h,
@@ -226,8 +158,8 @@ class ReflectVoiceScreen extends StatelessWidget {
 
         SizedBox(width: 30.w),
 
-        // Microphone Button (Main) with Wave Blob Animation
-        _buildMicButtonWithBlob(controller),
+        // Microphone Button (Main)
+        _buildMicButton(controller),
 
         SizedBox(width: 30.w),
 
@@ -271,8 +203,8 @@ class ReflectVoiceScreen extends StatelessWidget {
     );
   }
 
-  /// Build Microphone Button with Wave Blob Animation
-  Widget _buildMicButtonWithBlob(ReflectVoiceController controller) {
+  /// Build Microphone Button
+  Widget _buildMicButton(ReflectVoiceController controller) {
     return Obx(() {
       return GestureDetector(
         onTap: controller.toggleMic,
@@ -282,20 +214,6 @@ class ReflectVoiceScreen extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Wave Blob (only shown when mic is pressed) - behind button
-              if (controller.isMicPressed.value)
-                SizedBox(
-                  width: 120.w,
-                  height: 120.h,
-                  child: WaveBlob(
-                    colors: [
-                      const Color(0xFFFFC107).withValues(alpha: 0.3),
-                      const Color(0xFFFF5722).withValues(alpha: 0.4),
-                      AppColors.googlebuttonColor.withValues(alpha: 0.5),
-                    ],
-                    child: const SizedBox.shrink(),
-                  ),
-                ),
               // Mic Button (always visible, same color)
               Container(
                 width: 64.w,
@@ -305,8 +223,8 @@ class ReflectVoiceScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.googlebuttonColor.withValues(alpha: 0.99),
-                      blurRadius: 20,
+                      color: AppColors.googlebuttonColor.withValues(alpha: controller.isMicPressed.value ? 0.99 : 0.3),
+                      blurRadius: controller.isMicPressed.value ? 25 : 15,
                       offset: const Offset(0, 4),
                     ),
                   ],

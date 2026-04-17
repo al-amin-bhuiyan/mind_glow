@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/utils/app_colors.dart';
 import '../../controllers/profile_controller/profile_controller.dart';
 import '../../utils/app_fonts.dart';
 import '../../widgets/custom_assets.dart';
 import '../../widgets/custom_back_button.dart';
 import '../../controllers/localization_controller/localization_controller.dart';
 import '../../l10n/app_localizations.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 /// Profile Screen - User profile with settings and options
 class ProfileScreen extends StatelessWidget {
@@ -119,51 +121,83 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(14.r),
       ),
       child: Obx(
-            () => Row(
-          children: [
-            // Profile Image
-            Container(
-              width: 84.w,
-              height: 84.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 3.w,
+            () {
+          if (controller.isLoading.value) {
+            return Center(
+              child: LoadingAnimationWidget.waveDots(
+                color:AppColors.googlebuttonColor,
+                size: 40.sp,
+              ),
+            );
+          }
+          return Row(
+            children: [
+              // Profile Image
+              Container(
+                width: 84.w,
+                height: 84.h,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 3.w,
+                  ),
                 ),
-                image: DecorationImage(
-                  image: AssetImage(CustomAssets.person_image),
-                  fit: BoxFit.cover,
+                child: ClipOval(
+                  child: controller.userImage.value.isNotEmpty
+                      ? Image.network(
+                          controller.userImage.value,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: LoadingAnimationWidget.threeArchedCircle(
+                                color: const Color(0xFFC39D4C),
+                                size: 24.sp,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.asset(
+                              CustomAssets.person_image,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          CustomAssets.person_image,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
-            ),
 
-            SizedBox(width: 12.w),
+              SizedBox(width: 12.w),
 
-            // Name and Email (Dynamic Data stays normal)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  controller.userName.value,
-                  style: AppFonts.poppinsMedium(
-                    fontSize: 20.sp,
-                    color: const Color(0xFF1E1E1E),
+              // Name and Email (Dynamic Data stays normal)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    controller.userName.value,
+                    style: AppFonts.poppinsMedium(
+                      fontSize: 20.sp,
+                      color: const Color(0xFF1E1E1E),
+                    ),
                   ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  controller.userEmail.value,
-                  style: AppFonts.poppinsRegular(
-                    fontSize: 14.sp,
-                    color: const Color(0x991E1E1E),
-                    height: 1,
+                  SizedBox(height: 4.h),
+                  Text(
+                    controller.userEmail.value,
+                    style: AppFonts.poppinsRegular(
+                      fontSize: 14.sp,
+                      color: const Color(0x991E1E1E),
+                      height: 1,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }

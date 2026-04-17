@@ -4,58 +4,174 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../utils/toast_message.dart';
+import '../../../../utils/app_colors.dart';
+import '../../../../services/auth_service.dart';
+import '../../../../services/token_storage_service.dart';
 
 /// Controller for Edit Profile Screen - handles profile editing logic
 class EditProfileController extends GetxController {
   // Text editing controllers
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+
+  // Observable selections for popup menus
+  final RxString selectedPronoun = ''.obs;
+  final RxString selectedAgeRange = ''.obs;
+  final RxString selectedLifeSituation = ''.obs;
+  final RxString selectedLifeStage = ''.obs;
+  final RxString selectedLifeFeeling = ''.obs;
+  final RxString selectedFaith = ''.obs;
+  final RxString selectedInspirationSource = ''.obs;
+  final RxString selectedAttentionArea = ''.obs;
+
+  // Options
+  final List<String> pronounOptions = [
+    'She/Her',
+    'He/Him',
+    'Not to say',
+  ];
+
+  final List<String> ageRangeOptions = [
+    'Under 18 years',
+    '18-24',
+    '25-34',
+    '35-44',
+    '45-64',
+    '65+',
+  ];
+
+  final List<String> lifeSituationOptions = [
+    'Single',
+    'Married',
+    'In a Relationship',
+    'Separated / Divorced',
+    'Widowed',
+    'Other',
+  ];
+
+  final List<String> lifeStageOptions = [
+    'Student',
+    'Working professional',
+    'Parent / caregiver',
+    'Self-employed / Building something',
+    'Retired',
+    'Other',
+  ];
+
+  final List<String> lifeFeelingOptions = [
+    'Busy / overwhelming',
+    'Stable but heavy',
+    'Balanced',
+    'Uncertain',
+    'Mindfulness',
+    'Quiet but disconnected',
+    'Other',
+  ];
+
+  final List<String> faithOptions = [
+    'Christianity',
+    'Islam',
+    'Judaism',
+    'Buddhism',
+    'Hinduism',
+    'Another faith or spiritual path',
+    'I prefer non-religious inspiration',
+    'Other',
+  ];
+
+  final List<String> inspirationSourceOptions = [
+    'Sacred or spiritual texts',
+    'Spiritual teachers or scholars',
+    'Public figures or role models',
+    'Writers or books',
+    'Artists, creators, or influencers',
+    'Name specific people, books, or voices',
+  ];
+
+  final List<String> attentionAreaOptions = [
+    'Something I\'ve been carrying',
+    'A feeling I don\'t fully understand',
+    'A situation in my life',
+    'A pattern I\'ve noticed',
+    'I don\'t know yet — I just want space',
+    'Other',
+  ];
 
   // Observable states
   final RxBool isLoading = false.obs;
   final Rx<File?> selectedImage = Rx<File?>(null);
   final RxString profileImagePath = ''.obs;
 
+  final AuthService _authService = AuthService.instance;
+
   // Image picker instance
   final ImagePicker _picker = ImagePicker();
 
   // Receive data from profile screen via GoRouter extra
   Map<String, dynamic>? routeData;
-  String? initialEmail;
-  String? initialFirstName;
-  String? initialLastName;
+  String? initialFullName;
   String? initialImagePath;
 
   /// Initialize with route data
   void initializeWithData(Map<String, dynamic>? data) {
     if (data != null) {
       routeData = data;
-      initialEmail = data['email'];
-      initialFirstName = data['firstName'];
-      initialLastName = data['lastName'];
-      initialImagePath = data['imagePath'];
+      initialFullName = data['full_name'];
+      initialImagePath = data['profile_picture'];
 
       // Set initial values
-      emailController.text = initialEmail ?? '';
-      firstNameController.text = initialFirstName ?? '';
-      lastNameController.text = initialLastName ?? '';
+      fullNameController.text = initialFullName ?? '';
       profileImagePath.value = initialImagePath ?? '';
+      
+      // Attempt to load from additional data if available inside routeData
+      selectedPronoun.value = data['pronouns'] ?? '';
+      selectedAgeRange.value = data['age_group'] ?? '';
+      selectedLifeSituation.value = data['life_situation'] ?? '';
+      selectedLifeStage.value = data['occupation'] ?? '';
+      selectedLifeFeeling.value = data['life_feelings'] ?? '';
+      selectedFaith.value = data['faith'] ?? '';
+      selectedInspirationSource.value = data['inspiration_sources'] ?? '';
+      selectedAttentionArea.value = data['attention_today'] ?? '';
     }
   }
 
   @override
   void onInit() {
     super.onInit();
-    // Data will be initialized via initializeWithData method
-    // when screen is built with GoRouter extra parameter
+    // Fetch profile data from API
+    fetchProfileData();
+  }
+
+  Future<void> fetchProfileData() async {
+    try {
+      isLoading.value = true;
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await _authService.getUserProfile(token: token);
+
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        
+        fullNameController.text = data.fullName ?? '';
+        profileImagePath.value = data.profilePicture ?? '';
+        
+        selectedPronoun.value = data.pronouns ?? '';
+        selectedAgeRange.value = data.ageGroup ?? '';
+        selectedLifeSituation.value = data.lifeSituation ?? '';
+        selectedLifeStage.value = data.occupation ?? '';
+        selectedLifeFeeling.value = data.lifeFeelings ?? '';
+        selectedFaith.value = data.faith ?? '';
+        selectedInspirationSource.value = data.inspirationSources ?? '';
+        selectedAttentionArea.value = data.attentionToday ?? '';
+      }
+    } catch (e) {
+      debugPrint('Error fetching profile data: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
   void onClose() {
-    emailController.dispose();
-    firstNameController.dispose();
-    lastNameController.dispose();
+    fullNameController.dispose();
     super.onClose();
   }
 
@@ -149,18 +265,8 @@ class EditProfileController extends GetxController {
 
   /// Validate form fields
   bool validateForm() {
-    if (emailController.text.trim().isEmpty) {
-      ToastMessage.showError('Email is required');
-      return false;
-    }
-
-    if (firstNameController.text.trim().isEmpty) {
-      ToastMessage.showError('First name is required');
-      return false;
-    }
-
-    if (lastNameController.text.trim().isEmpty) {
-      ToastMessage.showError('Last name is required');
+    if (fullNameController.text.trim().isEmpty) {
+      ToastMessage.showError('Full name is required');
       return false;
     }
 
@@ -173,16 +279,35 @@ class EditProfileController extends GetxController {
 
     try {
       isLoading.value = true;
+      final token = await TokenStorageService.instance.getAccessToken();
 
-      // TODO: Implement actual API call to save profile
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+      final data = <String, String>{
+        'full_name': fullNameController.text.trim(),
+        'pronouns': selectedPronoun.value,
+        'age_group': selectedAgeRange.value,
+        'life_situation': selectedLifeSituation.value,
+        'occupation': selectedLifeStage.value,
+        'life_feelings': selectedLifeFeeling.value,
+        'faith': selectedFaith.value,
+        'inspiration_sources': selectedInspirationSource.value,
+        'attention_today': selectedAttentionArea.value,
+      };
 
-      // Show success message
-      ToastMessage.showSuccess('Profile updated successfully');
+      final response = await _authService.updateUserProfile(
+        data: data,
+        profilePicture: selectedImage.value, // It's only non-null if user picked a new file
+        token: token,
+      );
 
-      // Go back to profile screen
-      context.pop();
+      if (response.success && response.data != null) {
+        ToastMessage.showSuccess('Profile updated successfully');
+        
+        // Go back to profile screen
+        context.pop();
+        Get.delete<EditProfileController>();
+      } else {
+        ToastMessage.showError(response.errorMessage ?? 'Failed to update profile');
+      }
     } catch (e) {
       print('Error saving profile: $e');
       ToastMessage.showError('Failed to save profile');
@@ -194,5 +319,63 @@ class EditProfileController extends GetxController {
   /// Handle back button press
   void goBack(BuildContext context) {
     context.pop();
+    // Delete controller so it gets re-initialized fresh next time
+    Get.delete<EditProfileController>();
+  }
+
+  void showSelectionBottomSheet(BuildContext context, String title, List<String> options, RxString selectedValue) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: options.length,
+                  itemBuilder: (context, index) {
+                    final option = options[index];
+                    return Obx(() {
+                      final isSelected = selectedValue.value == option;
+                      return ListTile(
+                        title: Text(
+                          option,
+                          style: TextStyle(
+                            color: isSelected ? AppColors.googlebuttonColor : Colors.black,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        trailing: isSelected 
+                            ? Icon(Icons.check, color: AppColors.googlebuttonColor) 
+                            : null,
+                        onTap: () {
+                          selectedValue.value = option;
+                          Navigator.pop(context);
+                        },
+                      );
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -44,6 +44,13 @@ class JourneyController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    loadJourneyData();
+  }
+
+  // ==================== Public Methods ====================
+
+  /// Load all journey data (stats and reflections) allowing external refresh
+  void loadJourneyData() {
     _loadReflections();
     _fetchUserSummary();
   }
@@ -113,8 +120,6 @@ class JourneyController extends GetxController {
       isLoadingReflections.value = false;
     }
   }
-
-  // ==================== Public Methods ====================
 
   /// Toggle filter menu visibility
   void toggleFilterMenu() {

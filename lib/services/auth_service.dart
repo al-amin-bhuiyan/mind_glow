@@ -10,6 +10,7 @@ import '../models/user_summary_model.dart';
 import '../models/user_profile_model.dart';
 import '../utils/app_constants.dart';
 import 'api_service.dart';
+import 'dart:io';
 
 class AuthService {
   AuthService._();
@@ -360,6 +361,45 @@ class AuthService {
 
     return ApiResponse.error(
       message: response.errorMessage ?? 'Failed to load user profile.',
+      statusCode: response.statusCode,
+    );
+  }
+
+  Future<ApiResponse<UserProfileModel>> updateUserProfile({
+    required Map<String, String> data,
+    File? profilePicture,
+    String? token,
+  }) async {
+    // Filter out empty fields so we genuinely only PATCH what has changed
+    final Map<String, String> patchedData = {};
+    data.forEach((key, value) {
+      if (value.trim().isNotEmpty) {
+        patchedData[key] = value.trim();
+      }
+    });
+
+    final response = await _apiService.patchMultipart(
+      endpoint: AppConstants.userProfileEndpoint,
+      fields: patchedData,
+      file: profilePicture,
+      fileField: 'profile_picture',
+      token: token,
+    );
+
+    if (response.success && response.data != null) {
+      try {
+        final model = UserProfileModel.fromJson(response.data!);
+        return ApiResponse.success(data: model, statusCode: response.statusCode);
+      } catch (e) {
+        return ApiResponse.error(
+          message: 'Failed to parse user profile update response.',
+          statusCode: response.statusCode,
+        );
+      }
+    }
+
+    return ApiResponse.error(
+      message: response.errorMessage ?? 'Failed to update user profile.',
       statusCode: response.statusCode,
     );
   }

@@ -23,13 +23,8 @@ class VideoThumbnailCard extends StatelessWidget {
       child: Container(
         width: 168.w,
         height: 124.h,
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         clipBehavior: Clip.antiAlias,
         decoration: ShapeDecoration(
-          image: DecorationImage(
-            image: NetworkImage(video.thumbnailAsset),
-            fit: BoxFit.cover,
-          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14.r),
           ),
@@ -48,12 +43,30 @@ class VideoThumbnailCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Center(
-          child: SvgPicture.asset(
-            CustomAssets.video_icon_over_the_video_thumb,
-            width: 33.w,
-            height: 33.h,
-          ),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Image.network(
+                video.thumbnailAsset,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey.withOpacity(0.3),
+                    child: Center(
+                      child: Icon(Icons.broken_image, color: Colors.grey),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Center(
+              child: SvgPicture.asset(
+                CustomAssets.video_icon_over_the_video_thumb,
+                width: 33.w,
+                height: 33.h,
+              ),
+            ),
+          ],
         ),
       ),
     );

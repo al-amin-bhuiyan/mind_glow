@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 
 import '../../utils/app_colors.dart';
 import '../../widgets/custom_assets.dart';
@@ -74,14 +75,14 @@ class ChangePasswordFromForgetScreen extends StatelessWidget {
             onPressed: () => controller.goBack(context),
             width: 30,
             height: 30,
-            backgroundColor: Colors.black.withOpacity(0.10),
+            backgroundColor: Colors.black.withValues(alpha: 0.10),
             borderRadius: 100,
             color: Colors.black,
             size: 24,
           ),
           Expanded(
             child: Text(
-              'Reset Password',
+              _getLocalized(context, 'resetPasswordTitle', 'Reset Password'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.black,
@@ -98,6 +99,21 @@ class ChangePasswordFromForgetScreen extends StatelessWidget {
     );
   }
 
+  String _getLocalized(BuildContext context, String key, String fallback) {
+    try {
+      final localizations = AppLocalizations.of(context) as dynamic;
+      switch (key) {
+        case 'newPassword': return localizations.newPassword;
+        case 'confirmPassword': return localizations.confirmPassword;
+        case 'save': return localizations.save;
+        case 'resetPasswordTitle': return localizations.resetPasswordTitle;
+        default: return fallback;
+      }
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   /// Build Password Fields
   Widget _buildPasswordFields(ChangePasswordFromForgetController controller, BuildContext context) {
     return SizedBox(
@@ -109,7 +125,7 @@ class ChangePasswordFromForgetScreen extends StatelessWidget {
         children: [
           // New Password
           Obx(() => _buildPasswordField(
-            label: 'New Password',
+            label: _getLocalized(context, 'newPassword', 'New Password'),
             controller: controller.newPasswordController,
             isVisible: controller.isNewPasswordVisible.value,
             onToggleVisibility: controller.toggleNewPasswordVisibility,
@@ -118,7 +134,7 @@ class ChangePasswordFromForgetScreen extends StatelessWidget {
 
           // Confirm Password
           Obx(() => _buildPasswordField(
-            label: 'Confirm Password',
+            label: _getLocalized(context, 'confirmPassword', 'Confirm Password'),
             controller: controller.confirmPasswordController,
             isVisible: controller.isConfirmPasswordVisible.value,
             onToggleVisibility: controller.toggleConfirmPasswordVisibility,
@@ -127,7 +143,7 @@ class ChangePasswordFromForgetScreen extends StatelessWidget {
 
           // Save Button
           Obx(() => CustomButton(
-            label: 'Save',
+            label: _getLocalized(context, 'save', 'Save'),
             onPressed: controller.isLoading.value
                 ? null
                 : () => controller.onSavePassword(context),

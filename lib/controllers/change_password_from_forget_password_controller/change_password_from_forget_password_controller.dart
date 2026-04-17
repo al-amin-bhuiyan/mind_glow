@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mind_glow/routes/app_path.dart';
+import 'package:mind_glow/l10n/app_localizations.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/token_storage_service.dart';
@@ -47,10 +48,10 @@ class ChangePasswordFromForgetController extends GetxController {
   }
 
   /// Validate password fields
-  bool _validatePasswords() {
+  bool _validatePasswords(BuildContext context) {
     if (newPasswordController.text.isEmpty) {
       Fluttertoast.showToast(
-        msg: 'Please enter a new password',
+        msg: _getLocalized(context, 'errorEmptyNewPassword', 'Please enter a new password'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
@@ -61,7 +62,7 @@ class ChangePasswordFromForgetController extends GetxController {
 
     if (newPasswordController.text.length < 6) {
       Fluttertoast.showToast(
-        msg: 'Password must be at least 6 characters',
+        msg: _getLocalized(context, 'errorShortPassword', 'Password must be at least 6 characters'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.orange,
@@ -72,7 +73,7 @@ class ChangePasswordFromForgetController extends GetxController {
 
     if (confirmPasswordController.text.isEmpty) {
       Fluttertoast.showToast(
-        msg: 'Please confirm your password',
+        msg: _getLocalized(context, 'errorEmptyConfirmPassword', 'Please confirm your password'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
@@ -83,7 +84,7 @@ class ChangePasswordFromForgetController extends GetxController {
 
     if (newPasswordController.text != confirmPasswordController.text) {
       Fluttertoast.showToast(
-        msg: 'Passwords do not match',
+        msg: _getLocalized(context, 'errorPasswordMismatch', 'Passwords do not match'),
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
@@ -97,7 +98,7 @@ class ChangePasswordFromForgetController extends GetxController {
 
   /// Handle save password
   Future<void> onSavePassword(BuildContext context) async {
-    if (!_validatePasswords()) return;
+    if (!_validatePasswords(context)) return;
 
     isLoading.value = true;
 
@@ -111,7 +112,7 @@ class ChangePasswordFromForgetController extends GetxController {
 
       if (response.success && response.data != null) {
         Fluttertoast.showToast(
-          msg: response.data?.detail ?? 'Password reset successfully. You can now log in.',
+          msg: response.data?.detail ?? _getLocalized(context, 'successPasswordReset', 'Password reset successful. You can now log in.'),
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           backgroundColor: Colors.green,
@@ -128,7 +129,7 @@ class ChangePasswordFromForgetController extends GetxController {
         }
       } else {
         Fluttertoast.showToast(
-          msg: response.errorMessage ?? 'Failed to reset password. Please try again.',
+          msg: response.errorMessage ?? _getLocalized(context, 'errorPasswordResetFailed', 'Failed to reset password. Please try again.'),
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.TOP,
           backgroundColor: Colors.red,
@@ -137,7 +138,7 @@ class ChangePasswordFromForgetController extends GetxController {
       }
     } catch (e) {
       Fluttertoast.showToast(
-        msg: 'Failed to reset password: ${e.toString()}',
+        msg: '${_getLocalized(context, 'errorPasswordResetPrefix', 'Reset failed: ')}${e.toString()}',
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.TOP,
         backgroundColor: Colors.red,
@@ -145,6 +146,24 @@ class ChangePasswordFromForgetController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  String _getLocalized(BuildContext context, String key, String fallback) {
+    try {
+      final localizations = AppLocalizations.of(context) as dynamic;
+      switch (key) {
+        case 'errorEmptyNewPassword': return localizations.errorEmptyNewPassword;
+        case 'errorShortPassword': return localizations.errorShortPassword;
+        case 'errorEmptyConfirmPassword': return localizations.errorEmptyConfirmPassword;
+        case 'errorPasswordMismatch': return localizations.errorPasswordMismatch;
+        case 'successPasswordReset': return localizations.successPasswordReset;
+        case 'errorPasswordResetFailed': return localizations.errorPasswordResetFailed;
+        case 'errorPasswordResetPrefix': return localizations.errorPasswordResetPrefix;
+        default: return fallback;
+      }
+    } catch (_) {
+      return fallback;
     }
   }
 

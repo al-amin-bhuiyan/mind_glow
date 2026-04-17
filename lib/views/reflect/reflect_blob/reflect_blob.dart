@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:wave_blob/wave_blob.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../controllers/reflect_controller/reflect_controller.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_fonts.dart';
@@ -21,56 +21,59 @@ class ReflectBlobScreen extends StatelessWidget {
     final controller = Get.put(ReflectBlobController());
     final reflectController = Get.find<ReflectController>();
 
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(CustomAssets.backgroundimage),
-            fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(CustomAssets.backgroundimage),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // App Bar
-              _buildAppBar(context, controller),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // App Bar
+                _buildAppBar(context, controller),
 
-              // Welcome Text
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 16.h),  // Apply the padding here
-                child: _buildWelcomeText(),
-              ),
-
+                // Welcome Text
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 16.h),  // Apply the padding here
+                  child: _buildWelcomeText(),
+                ),
 
 
-              // Content
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      //   SizedBox(height: 24.h),
 
-                      // Animated Blob
-                      _buildAnimatedBlob(controller),
+                // Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                           SizedBox(height: 54.h),
 
-                      // Question Text
-                      _buildQuestionText(),
+                        // Animated Blob
+                        _buildAnimatedBlob(controller),
 
-                      SizedBox(height: 174.h),
-                    ],
+                        // Question Text
+                        _buildQuestionText(),
+
+                        SizedBox(height: 174.h),
+                      ],
+                    ),
                   ),
                 ),
-              ),
 
-              // Input Area
-              _buildInputArea(reflectController,context),
+                // Input Area
+                _buildInputArea(reflectController,context),
 
-              SizedBox(height: 16.h),
-            ],
+                SizedBox(height: 16.h),
+              ],
+            ),
           ),
         ),
       ),
@@ -154,76 +157,13 @@ class ReflectBlobScreen extends StatelessWidget {
 
   /// Build Animated Blob
   Widget _buildAnimatedBlob(ReflectBlobController controller) {
-    return Obx(
-          () => AnimatedScale(
-        scale: controller.blobScale.value,
-        duration: const Duration(milliseconds: 1500),
-        curve: Curves.easeInOut,
-        child: SizedBox(
-          width: 350.w,
-          height: 350.h,
-          child: Center(
-            child: SizedBox(
-              width: 250.w,
-              height: 250.h,
-              child: WaveBlob(
-                colors: [
-                  AppColors.googlebuttonColor.withValues(alpha: 0.3),
-                  AppColors.googlebuttonColor.withValues(alpha: 0.5),
-                ],
-                child: Stack(
-                  children: [
-                    // Background layer 1
-                    Positioned.fill(
-                      child: Container(
-                        decoration: ShapeDecoration(
-                          //    color: const Color(0x33FCC084),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9999.r),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Background layer 2
-                    Positioned.fill(
-                      child: Container(
-                        decoration: ShapeDecoration(
-                          //  color: const Color(0x7FF0E4C3),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9999.r),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Blob Image with shadow
-                    Positioned.fill(
-                      child: Container(
-                        decoration: ShapeDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(CustomAssets.reflect_blob),
-                            fit: BoxFit.cover,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9999.r),
-                          ),
-                          shadows: [
-                            BoxShadow(
-                              color: const Color(0xFFEEDFD4),
-                              blurRadius: 50,
-                              offset: const Offset(0, 25),
-                              spreadRadius: -12,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+    return SizedBox(
+      width:double.infinity,
+      height: 200.h,
+      child: Center(
+        child: LoadingAnimationWidget.staggeredDotsWave(
+          color: AppColors.googlebuttonColor,
+          size: 150.w,
         ),
       ),
     );
@@ -274,6 +214,7 @@ class ReflectBlobScreen extends StatelessWidget {
 
   /// Build Input Area (same as main reflect screen)
   Widget _buildInputArea(ReflectController controller,BuildContext context) {
+    final blobController = Get.find<ReflectBlobController>();
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 26.w),
       child: Row(
@@ -291,6 +232,7 @@ class ReflectBlobScreen extends StatelessWidget {
                   // Text Input Field
                   Expanded(
                     child: TextField(
+                      focusNode: blobController.inputFocusNode,
                       controller: controller.messageController,
                       style: AppFonts.poppinsRegular(
                         fontSize: 14.sp,
@@ -310,6 +252,8 @@ class ReflectBlobScreen extends StatelessWidget {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) {
                         if (controller.messageController.text.trim().isNotEmpty) {
+                          blobController.inputFocusNode.unfocus();
+                          FocusScope.of(context).unfocus();
                           controller.sendMessage();
                           context.push('/reflect');
                         }
@@ -324,6 +268,8 @@ class ReflectBlobScreen extends StatelessWidget {
                     onTap: () {
                       // Send message and navigate to reflect screen
                       if (controller.messageController.text.trim().isNotEmpty) {
+                        blobController.inputFocusNode.unfocus();
+                        FocusScope.of(context).unfocus();
                         controller.sendMessage();
                         // Navigate to reflect screen
                         context.push(AppPath.reflect);

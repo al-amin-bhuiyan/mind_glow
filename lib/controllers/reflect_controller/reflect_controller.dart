@@ -26,6 +26,9 @@ class ReflectController extends GetxController {
   // Observable for user profile picture
   final RxString userProfilePicture = ''.obs;
 
+  // Scroll controller for auto-scrolling
+  final ScrollController scrollController = ScrollController();
+
   late stt.SpeechToText _speech;
   bool _isSpeechInitialized = false;
 
@@ -39,6 +42,22 @@ class ReflectController extends GetxController {
     _fetchUserProfile();
     // Initially clear, no need for demo messages now since it's driven by real API
     messages.clear();
+
+    // Listen to changes to scroll to bottom
+    ever(messages, (_) => _scrollToBottom());
+    ever(isLoading, (_) => _scrollToBottom());
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Future<void> _fetchUserProfile() async {
@@ -52,6 +71,10 @@ class ReflectController extends GetxController {
     } catch (e) {
       debugPrint('Error fetching user profile in ReflectController: $e');
     }
+  }
+
+  void refreshProfile() {
+    _fetchUserProfile();
   }
 
   Future<void> _initSpeech() async {
@@ -72,6 +95,7 @@ class ReflectController extends GetxController {
 
   @override
   void onClose() {
+    scrollController.dispose();
     messageController.dispose();
     super.onClose();
   }
@@ -229,10 +253,19 @@ class ReflectController extends GetxController {
   /// Start voice recording
   void _startRecording() {
     isRecording.value = true;
+    final previousText = messageController.text;
     _speech.listen(
       onResult: (result) {
-        // Appends or sets text
-        messageController.text = result.recognizedWords;
+        final newText = previousText.isEmpty
+            ? result.recognizedWords
+            : '$previousText ${result.recognizedWords}';
+            
+        messageController.text = newText;
+        
+        // Keep cursor at the end to ensure TextField scrolls/updates properly
+        messageController.selection = TextSelection.fromPosition(
+          TextPosition(offset: newText.length),
+        );
       },
     );
   }

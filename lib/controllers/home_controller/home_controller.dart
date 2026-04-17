@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../../services/inspiration_service.dart';
 import '../../services/reflect_service.dart';
+import '../../services/journey_service.dart';
 import '../../services/token_storage_service.dart';
 import '../reflect_controller/reflect_controller.dart';
 
@@ -27,32 +28,44 @@ class HomeController extends GetxController {
   // ==================== Public Methods ====================
 
   /// Handle start reflections button tap
-  void onStartReflections(BuildContext context) {
+  Future<void> onStartReflections(BuildContext context) async {
     // Just navigate to reflections blob screen, wait for user input to create session
     final reflectController = Get.find<ReflectController>();
     reflectController.currentConversationId = null;
     reflectController.messages.clear();
-    context.push(AppPath.reflectblob);
+    await context.push(AppPath.reflectblob);
+    // Refresh stats when returning to Home
+    loadUserData();
   }
 
   /// Handle start session button tap
-  void onStartSession(BuildContext context) async {
+  Future<void> onStartSession(BuildContext context) async {
     isLoading.value = true;
 
     try {
       final token = await TokenStorageService.instance.getAccessToken();
       final reflectController = Get.find<ReflectController>();
 
-      // 1. Get the last conversation ID
+      // 1. Get the last conversation ID from /reflections-chat/chat/last/
       final lastConvResponse = await ReflectService.instance.getLastConversation(token: token ?? '');
-      
+
       bool success = false;
-      
-      if (lastConvResponse.success && lastConvResponse.data != null && lastConvResponse.data!['conversation_id'] != null) {
-        final int conversationId = lastConvResponse.data!['conversation_id'];
+
+      if (lastConvResponse.success && lastConvResponse.data != null) {
+        final data = lastConvResponse.data!;
+        int? conversationId;
         
-        // 2. Load the existing conversation history
-        success = await reflectController.loadExistingConversation(conversationId);
+        if (data['conversation_id'] != null) {
+          conversationId = data['conversation_id'] is int ? data['conversation_id'] : int.tryParse(data['conversation_id'].toString());
+        }
+        
+        if (conversationId != null) {
+          // 2. Load the existing conversation history from /reflections-chat/chat/conversations/:id/messages/
+          success = await reflectController.loadExistingConversation(conversationId);
+        } else {
+          // Fallback: start a completely new conversation if no previous session is found
+          success = await reflectController.startNewConversation();
+        }
       } else {
         // Fallback: start a completely new conversation if no previous session is found
         success = await reflectController.startNewConversation();
@@ -62,9 +75,11 @@ class HomeController extends GetxController {
 
       // Only navigate if we successfully loaded/started the conversation state
       if (success) {
-        context.push(AppPath.reflect);
+        await context.push(AppPath.reflect);
+        // Refresh stats when returning to Home
+        loadUserData();
       }
-      
+
     } catch (e) {
       isLoading.value = false;
       debugPrint('Error starting session: $e');
@@ -80,10 +95,10 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     // Initialize data
-    _loadUserData();
+    loadUserData();
   }
 
-  void _loadUserData() {
+  void loadUserData() {
     _fetchUserSummary();
     _fetchDailyQuote();
     _fetchUserProfile();

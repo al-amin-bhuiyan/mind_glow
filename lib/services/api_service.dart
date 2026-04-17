@@ -123,6 +123,57 @@ class ApiService {
     }
   }
 
+  Future<ApiResponse<Map<String, dynamic>>> patchMultipart({
+    required String endpoint,
+    required Map<String, String> fields,
+    File? file,
+    String? fileField,
+    String? token,
+    int? timeoutSeconds,
+  }) async {
+    try {
+      final uri = _buildUri(endpoint);
+      debugPrint('🌐 [ApiService] PATCH Multipart Request to: $uri');
+      
+      final request = http.MultipartRequest('PATCH', uri);
+      
+      if (token != null && token.isNotEmpty) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
+      request.headers['Accept'] = 'application/json';
+
+      request.fields.addAll(fields);
+      debugPrint('🌐 [ApiService] Fields: $fields');
+
+      if (file != null && fileField != null) {
+        debugPrint('🌐 [ApiService] Attaching file: ${file.path} to field: $fileField');
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            fileField,
+            file.path,
+          ),
+        );
+      }
+
+      final streamedResponse = await _client.send(request).timeout(
+        Duration(seconds: timeoutSeconds ?? AppConstants.connectTimeoutSeconds),
+      );
+
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } on SocketException {
+      return ApiResponse.error(
+        message: 'No internet connection. Please check your network.',
+        statusCode: 0,
+      );
+    } catch (e) {
+      return ApiResponse.error(
+        message: 'Something went wrong: ${e.toString()}',
+        statusCode: 0,
+      );
+    }
+  }
+
   ApiResponse<Map<String, dynamic>> _handleResponse(http.Response response) {
     try {
       debugPrint('🟢 API Status Code: ${response.statusCode}');

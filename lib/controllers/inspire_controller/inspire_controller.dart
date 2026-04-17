@@ -35,6 +35,9 @@ class InspireController extends GetxController {
   /// Show all quotes instead of just 4
   final RxBool showAllQuotes = false.obs;
 
+  /// Loading state for saved inspirations
+  final RxBool isLoadingSavedInspirations = false.obs;
+
   // ==================== Constants ====================
 
   /// Available category options (now observable to populate from API)
@@ -45,6 +48,13 @@ class InspireController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    loadInspireData();
+  }
+
+  // ==================== Public Methods ====================
+
+  /// Load core data for Inspire Screen allows external refresh
+  void loadInspireData() {
     _loadSavedInspirations();
     _loadInspirationVideos();
     _fetchDailyQuote();
@@ -138,7 +148,7 @@ class InspireController extends GetxController {
       );
 
       if (response.success) {
-        _loadSavedInspirations(); // Reload from server to get correct ID
+        _loadSavedInspirations(showLoading: false); // Reload from server silently to prevent flashing loader
         Fluttertoast.showToast(
           msg: "Quote bookmarked successfully!",
           toastLength: Toast.LENGTH_SHORT,
@@ -175,8 +185,9 @@ class InspireController extends GetxController {
   }
 
   /// Load saved inspirations from data source
-  Future<void> _loadSavedInspirations() async {
+  Future<void> _loadSavedInspirations({bool showLoading = true}) async {
     try {
+      if (showLoading) isLoadingSavedInspirations.value = true;
       final token = await TokenStorageService.instance.getAccessToken();
       final response = await InspirationService.instance.getFavoriteQuotes(token: token);
 
@@ -194,6 +205,8 @@ class InspireController extends GetxController {
       }
     } catch (e) {
       debugPrint('Error fetching favorite quotes: $e');
+    } finally {
+      if (showLoading) isLoadingSavedInspirations.value = false;
     }
   }
 
@@ -204,9 +217,25 @@ class InspireController extends GetxController {
       final response = await InspirationService.instance.getInspirationVideos(token: token);
 
       if (response.success && response.data != null) {
-        inspirationVideos.value = response.data!
-            .map((json) => VideoItem.fromJson(json as Map<String, dynamic>))
-            .toList();
+        final List<VideoItem> fetchedVideos = [];
+        for (var item in response.data!) {
+          try {
+            if (item is Map) {
+              // Properly unescape the HTML entities in the titles
+              final Map<String, dynamic> itemMap = Map<String, dynamic>.from(item);
+              if (itemMap['title'] != null) {
+                // simple unescape replacement to handle backend data
+                String title = itemMap['title'].toString();
+                title = title.replaceAll('&#39;', "'").replaceAll('&amp;', '&').replaceAll('&quot;', '"');
+                itemMap['title'] = title;
+              }
+              fetchedVideos.add(VideoItem.fromJson(itemMap));
+            }
+          } catch (e) {
+            debugPrint('Error processing video item: $e');
+          }
+        }
+        inspirationVideos.value = fetchedVideos;
       }
     } catch (e) {
       debugPrint('Error fetching inspiration videos: $e');
@@ -242,7 +271,7 @@ class InspireController extends GetxController {
             msg: "Quote removed from favorites.",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.TOP,
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.red,
             textColor: Colors.white,
           );
         } else {
@@ -284,6 +313,8 @@ class InspireController extends GetxController {
         builder: (context) => YoutubePlayerScreen(
           videoUrl: video.videoUrl,
           title: video.title,
+          description: video.description,
+          channel: video.channel,
         ),
       ),
     );

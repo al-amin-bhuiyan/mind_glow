@@ -22,48 +22,59 @@ class ReflectScreen extends StatelessWidget {
 
     // Set nav bar to reflect tab (index 1)
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.refreshProfile();
       if (navBarController.selectedIndex.value != 1) {
         navBarController.selectedIndex.value = 1;
       }
     });
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          controller.goBack(context);
-        }
-      },
-      child: Scaffold(
-        body: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(CustomAssets.backgroundimage),
-              fit: BoxFit.cover,
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop) {
+            FocusManager.instance.primaryFocus?.unfocus();
+            controller.goBack(context);
+          }
+        },
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(CustomAssets.backgroundimage),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                // App Bar
-                _buildAppBar(context, controller),
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  // App Bar
+                  _buildAppBar(context, controller),
 
-                // Subtitle
-                _buildSubtitle(context),
+                  // Subtitle
+                  _buildSubtitle(context),
 
-                // Chat Messages
-                Expanded(
-                  child: _buildMessagesList(controller),
-                ),
+                  // Chat Messages
+                  Expanded(
+                    child: _buildMessagesList(controller),
+                  ),
 
-                // Input Area
-                _buildInputArea(controller,context),
-
-                SizedBox(height: 16.h),
-
-                // Navigation Bar
-                //  CustomNavBar(controller: navBarController),
-              ],
+                  // Input Area
+                  AnimatedPadding(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    padding: EdgeInsets.only(
+                      bottom: keyboardHeight > 0 ? keyboardHeight + 8.h : 16.h + MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: _buildInputArea(controller,context),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -79,7 +90,10 @@ class ReflectScreen extends StatelessWidget {
         children: [
           // Back Button
           CustomBackButton(
-            onPressed: () => controller.goBack(context),
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              controller.goBack(context);
+            },
             width: 30,
             height: 30,
             backgroundColor: Colors.black.withValues(alpha: 0.10),
@@ -128,6 +142,7 @@ class ReflectScreen extends StatelessWidget {
     return Obx(() {
       final itemCount = controller.messages.length + (controller.isLoading.value ? 1 : 0);
       return ListView.builder(
+        controller: controller.scrollController,
         padding: EdgeInsets.symmetric(horizontal: 26.w, vertical: 16.h),
         itemCount: itemCount,
         itemBuilder: (context, index) {
@@ -313,16 +328,26 @@ class ReflectScreen extends StatelessWidget {
               margin: EdgeInsets.only(left: 10.w),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.r),
-                image: DecorationImage(
-                  image: controller.userProfilePicture.value.isNotEmpty
-                      ? NetworkImage(
-                          controller.userProfilePicture.value.startsWith('http')
-                              ? controller.userProfilePicture.value
-                              : '${AppConstants.baseUrl.replaceAll(RegExp(r'/v1/?$'), '')}${controller.userProfilePicture.value}',
-                        ) as ImageProvider
-                      : AssetImage(CustomAssets.person_icon),
-                  fit: BoxFit.cover,
-                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.r),
+                child: controller.userProfilePicture.value.isNotEmpty
+                    ? Image.network(
+                        controller.userProfilePicture.value.startsWith('http')
+                            ? controller.userProfilePicture.value
+                            : '${AppConstants.baseUrl.replaceAll(RegExp(r'/v1/?$'), '')}${controller.userProfilePicture.value}',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            CustomAssets.person_icon,
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        CustomAssets.person_icon,
+                        fit: BoxFit.cover,
+                      ),
               ),
             )),
           ],

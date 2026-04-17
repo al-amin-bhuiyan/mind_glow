@@ -32,106 +32,94 @@ class InnerLearningScreen extends StatelessWidget {
 
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    return Scaffold(
-      extendBody: true,
-      resizeToAvoidBottomInset: false,
-      body: Obx(() => Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage(CustomAssets.backgroundimage),
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        extendBody: true,
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          children: [
+            Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(CustomAssets.backgroundimage),
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  // Custom App Bar
-                  _buildAppBar(context),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    // Custom App Bar
+                    _buildAppBar(context),
 
-                  // Scrollable Content
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(horizontal: 26.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Subtitle
-                          Text(
-                            AppLocalizations.of(context)!.whatToLearnToday,
-                            textAlign: TextAlign.center,
-                            style: AppFonts.manropeRegular(
-                              fontSize: 14.sp,
-                              color: const Color(0xFF78706B),
-                              height: 1.29,
+                    // Scrollable Content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(horizontal: 26.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Subtitle
+                            Text(
+                              AppLocalizations.of(context)!.whatToLearnToday,
+                              textAlign: TextAlign.center,
+                              style: AppFonts.manropeRegular(
+                                fontSize: 14.sp,
+                                color: const Color(0xFF78706B),
+                                height: 1.29,
+                              ),
                             ),
-                          ),
 
-                          SizedBox(height: 24.h),
+                            SizedBox(height: 24.h),
 
-                          // Past Learnings Section
-                          _buildPastLearningsSection(controller),
+                            // Past Learnings Section
+                            _buildPastLearningsSection(controller),
 
-                          SizedBox(height: 24.h),
+                            SizedBox(height: 24.h),
 
-                          // Suggestion Chips
-                          _buildSuggestionChips(controller),
+                            // Suggestion Chips
+                            _buildSuggestionChips(controller),
 
-                          SizedBox(height: 180.h), // Space for search bar + nav bar
-                        ],
+                            SizedBox(height: 180.h), // Space for search bar + nav bar
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (controller.isLoading.value)
-            Positioned.fill(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  child: Center(
-                    child: LoadingAnimationWidget.staggeredDotsWave(
-                      color: AppColors.googlebuttonColor,
-                      size: 100,
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ),
-        ],
-      )),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Search Input Section - Moves with keyboard
-          AnimatedPadding(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.only(
-              left: 26.w,
-              right: 26.w,
-              bottom: 8.h + keyboardHeight,
-              top: 8.h,
+          ],
+        ),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Search Input Section - Moves with keyboard
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.only(
+                left: 26.w,
+                right: 26.w,
+                bottom: 8.h + keyboardHeight,
+                top: 8.h,
+              ),
+              child: _buildInputSection(controller),
             ),
-            child: _buildInputSection(controller),
-          ),
 
-          // Navigation Bar - Hidden when keyboard is visible
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            height: keyboardHeight > 0 ? 0 : null,
-            child: keyboardHeight > 0
-                ? const SizedBox.shrink()
-                : SafeArea(
-              child: CustomNavBar(controller: navBarController),
+            // Navigation Bar - Hidden when keyboard is visible
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: keyboardHeight > 0 ? 0 : null,
+              child: keyboardHeight > 0
+                  ? const SizedBox.shrink()
+                  : SafeArea(
+                child: CustomNavBar(controller: navBarController),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -179,28 +167,45 @@ class InnerLearningScreen extends StatelessWidget {
           SizedBox(height: 12.h),
 
           // Learning cards list
-          Obx(() => AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            alignment: Alignment.topCenter,
-            clipBehavior: Clip.none,
-            child: Column(
-              children: controller.displayedLearnings
-                  .map((learning) => Padding(
-                padding: EdgeInsets.only(bottom: 8.h),
-                child: LearningCard(
-                  learning: learning,
-                  onTap: () => controller.openLearningDetail(learning, context),
-                ),
-              ))
-                  .toList(),
-            ),
-          )),
+          Obx(() {
+            return AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.topCenter,
+              clipBehavior: Clip.none,
+              child: Column(
+                children: [
+                  if (controller.isLoading.value)
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20.h),
+                        child: LoadingAnimationWidget.staggeredDotsWave(
+                          color: AppColors.googlebuttonColor,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  if (controller.pastLearnings.isNotEmpty)
+                    ...controller.displayedLearnings.map((learning) => Padding(
+                          padding: EdgeInsets.only(bottom: 8.h),
+                          child: LearningCard(
+                            learning: learning,
+                            onTap: () => controller.openLearningDetail(learning, context),
+                          ),
+                        )),
+                ],
+              ),
+            );
+          }),
 
           SizedBox(height: 8.h),
 
           // See More/Less button
           Obx(() {
+            if (controller.pastLearnings.length <= 3) {
+              return const SizedBox.shrink();
+            }
+            
             return GestureDetector(
               onTap: controller.toggleShowMore,
               child: Row(
@@ -290,11 +295,10 @@ class InnerLearningScreen extends StatelessWidget {
     return Builder(
       builder: (context) => Row(
         children: [
-          // Input field
+          // Text Input Field Container
           Expanded(
             child: Container(
-              height: 50.h,
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
               decoration: ShapeDecoration(
                 color: Colors.white, // Solid background so background is not seen
                 shape: RoundedRectangleBorder(
@@ -315,44 +319,72 @@ class InnerLearningScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: TextField(
-                controller: controller.textController,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => controller.sendLearningQuery(context),
-                textAlignVertical: TextAlignVertical.top,
-                style: AppFonts.poppinsRegular(
-                  fontSize: 18.sp,
-                  color: Colors.black.withValues(alpha: 0.99),
-                ),
-                decoration: InputDecoration(
-                  hintText: AppLocalizations.of(context)!.inputHintRelationship,
-                  hintStyle: AppFonts.poppinsRegular(
-                    fontSize: 14.sp,
-                    color: Colors.black.withValues(alpha: 0.50), // Standard soft hint color
-                    height: 0.1,
+              child: Row(
+                children: [
+                  // Text Input Field
+                  Expanded(
+                    child: TextField(
+                      focusNode: controller.inputFocusNode,
+                      controller: controller.textController,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) {
+                        FocusScope.of(context).unfocus();
+                        controller.sendLearningQuery(context);
+                      },
+                      textAlignVertical: TextAlignVertical.center,
+                      style: AppFonts.poppinsRegular(
+                        fontSize: 18.sp,
+                        color: Colors.black.withValues(alpha: 0.99),
+                      ),
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.inputHintRelationship,
+                        hintStyle: AppFonts.poppinsRegular(
+                          fontSize: 14.sp,
+                          color: Colors.black.withValues(alpha: 0.35), // Beautiful soft hint color
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        isDense: true,
+                      ),
+                    ),
                   ),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                ),
+
+                  SizedBox(width: 8.w),
+
+                  // Send button inside text field
+                  GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      controller.sendLearningQuery(context);
+                    },
+                    child: SvgPicture.asset(
+                      CustomAssets.send_icon,
+                      width: 24.w,
+                      height: 24.h,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
+
           SizedBox(width: 8.w),
 
-          // Send button
+          // Voice Button
           GestureDetector(
-            onTap: () => controller.sendLearningQuery(context),
-            child: Container(
+            onTap: () {
+              FocusScope.of(context).unfocus();
+              controller.toggleRecording(context);
+            },
+            child: Obx(() => Container(
               width: 50.w,
               height: 50.h,
-              padding: EdgeInsets.all(8.w),
-              clipBehavior: Clip.antiAlias,
               decoration: ShapeDecoration(
-                color: Colors.white, // Solid background so background is not seen
+                color: controller.isRecording.value ? Colors.red.withValues(alpha: 0.3) : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32.r),
                 ),
-                shadows: [
+                shadows: controller.isRecording.value ? [] : [
                   BoxShadow(
                     color: const Color(0x1A896D16),
                     blurRadius: 8,
@@ -368,13 +400,15 @@ class InnerLearningScreen extends StatelessWidget {
                 ],
               ),
               child: Center(
-                child: SvgPicture.asset(
-                  CustomAssets.send_icon,
+                child: Image.asset(
+                  CustomAssets.voice_icon,
                   width: 24.w,
                   height: 24.h,
+                  fit: BoxFit.contain,
+                  color: controller.isRecording.value ? Colors.red : null,
                 ),
               ),
-            ),
+            )),
           ),
         ],
       ),

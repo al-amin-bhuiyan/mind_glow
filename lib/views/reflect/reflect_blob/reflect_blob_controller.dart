@@ -12,10 +12,19 @@ class ReflectBlobController extends GetxController {
   /// Scale animation value
   final RxDouble blobScale = 1.0.obs;
 
+  /// Focus node for text input
+  final FocusNode inputFocusNode = FocusNode();
+
   @override
   void onInit() {
     super.onInit();
     _startBlobAnimation();
+  }
+
+  @override
+  void onClose() {
+    inputFocusNode.dispose();
+    super.onClose();
   }
 
   /// Start blob breathing animation

@@ -9,7 +9,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get home => 'الصفحة الرئيسية';
+  String get home => 'الرئيسية';
 
   @override
   String get profile => 'الملف الشخصي';
@@ -46,39 +46,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String goodMorning(String name) {
-    return 'Hello , $name,';
+    return 'مرحبًا ، $name،';
   }
 
   @override
-  String get quietSpaceAwaits => 'A quiet space for reflection awaits you.';
+  String get quietSpaceAwaits => 'مساحة هادئة للتأمل في انتظارك.';
 
   @override
-  String get whatFeelsPresent => 'What feels present right now?';
+  String get whatFeelsPresent => 'ما الذي تشعر بوجوده الآن؟';
 
   @override
-  String get startReflections => 'Start Reflections>';
+  String get startReflections => 'ابدأ التأملات>';
 
   @override
-  String get questionToReflect => 'A question you may wish to reflect on';
+  String get questionToReflect => 'سؤال قد ترغب في التفكير فيه';
 
   @override
   String get reflectionQuestion =>
-      'When was the last time you felt truly confident — and what felt different in that moment?';
+      'متى كانت آخر مرة شعرت فيها بثقة حقيقية - وما الذي كان مختلفًا في تلك اللحظة؟';
 
   @override
-  String get startSession => 'Start Session>';
+  String get startSession => 'ابدأ الجلسة>';
 
   @override
-  String get journeySoFar => 'Your journey so far';
+  String get journeySoFar => 'رحلتك حتى الآن';
 
   @override
-  String get reflectionsWritten => '7 reflections\nwritten';
+  String get reflectionsWritten => '7 تأملات\nمكتوبة';
 
   @override
-  String get themesExplored => '3 themes\nexplored';
+  String get themesExplored => '3 مواضيع\nمستكشفة';
 
   @override
-  String get reflectedDays => 'Reflected\nover 6 days';
+  String get reflectedDays => 'انعكست\nعلى مدى 6 أيام';
 
   @override
   String get quietInspiration => 'A quiet inspiration';
@@ -120,259 +120,252 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get filterText => 'Filter';
+  String get filterText => 'تصفية';
 
   @override
-  String get filterByTitle => 'Filter by';
+  String get filterByTitle => 'تصفية حسب';
 
   @override
-  String get filterAll => 'All';
+  String get filterAll => 'الكل';
 
   @override
-  String get filterByTheme => 'By Theme';
+  String get filterByTheme => 'حسب الموضوع';
 
   @override
-  String get filterByTime => 'By Time';
+  String get filterByTime => 'حسب الوقت';
 
   @override
-  String get april12 => 'April 12';
+  String get april12 => '12 أبريل';
 
   @override
-  String get selfConfident => 'Self-Confident.';
+  String get selfConfident => 'واثق من نفسه.';
 
   @override
-  String get relationships => 'Relationships.';
+  String get relationships => 'العلاقات.';
 
   @override
-  String get mockDesc1 =>
-      'You reflected on moments where speaking up felt uncertain.';
+  String get mockDesc1 => 'لقد تأملت في اللحظات التي كان فيها التحدث غير مؤكد.';
 
   @override
-  String get mockDesc2 =>
-      'You considered how past experiences have shaped your sense of confidence.';
+  String get mockDesc2 => 'لقد فكرت في كيف شكلت التجارب السابقة إحساسك بالثقة.';
 
   @override
-  String get mockDesc3 =>
-      'You shared that sometimes you feel a weight in your sense of confidence.';
+  String get mockDesc3 => 'لقد شاركت أنك تشعر أحيانًا بثقل في ثقتك بنفسك.';
 
   @override
-  String get mockDesc4 =>
-      'You reflected on how feeling supported deepens your connections.';
+  String get mockDesc4 => 'لقد تأملت في كيف يعمق الشعور بالدعم اتصالاتك.';
 
   @override
-  String get reflectTitle => 'Reflect';
+  String get reflectTitle => 'تأمل';
 
   @override
-  String get reflectSubtitle => 'A quiet space to explore your thoughts.';
+  String get reflectSubtitle => 'مساحة هادئة لاستكشاف أفكارك.';
 
   @override
-  String get reflectInputHint => 'I like working on the';
+  String get reflectInputHint => 'أحب العمل على';
 
   @override
-  String get inspireTitle => 'Inspire';
+  String get inspireTitle => 'إلهام';
 
   @override
-  String get inspireSubtitle => 'Quiet words and ideas to sit with.';
+  String get inspireSubtitle => 'كلمات وأفكار هادئة للجلوس معها.';
 
   @override
   String get whatYouReflectedOn => 'What you\'ve reflected on';
 
   @override
-  String get chooseWhatFeelsMeaningful =>
-      'Choose what feels meaningful to you .';
+  String get chooseWhatFeelsMeaningful => 'اختر ما يبدو ذا معنى لك .';
 
   @override
-  String get saveInspirations => 'Save Inspirations';
+  String get saveInspirations => 'حفظ الإلهامات';
 
   @override
-  String get wordsYouChoseToKeep => 'Words you chose to keep';
+  String get wordsYouChoseToKeep => 'الكلمات التي اخترت الاحتفاظ بها';
 
   @override
-  String get inspirationVideo => 'Inspiration Video';
+  String get inspirationVideo => 'فيديو إلهام';
 
   @override
   String get inspireBottomNote =>
-      'You may return to reflection whenever it feels right';
+      'يمكنك العودة إلى التأمل متى شعرت أن الوقت مناسب';
 
   @override
-  String get categoryVoices => 'Voices';
+  String get categoryVoices => 'أصوات';
 
   @override
-  String get categoryMeaning => 'Meaning';
+  String get categoryMeaning => 'المعنى';
 
   @override
-  String get categoryPerspectives => 'Perspectives';
+  String get categoryPerspectives => 'وجهات نظر';
 
   @override
-  String get categoryWhatMatters => 'What Matters';
+  String get categoryWhatMatters => 'ما يهم';
 
   @override
   String get featuredQuoteText =>
-      '\"Not everything that feels unresolved need immediate clarity.\"';
+      '\"ليس كل شيء يبدو غير محلول يحتاج إلى وضوح فوري.\"';
 
   @override
-  String get featuredQuoteSubtitle => 'Chosen based on what resonates with you';
+  String get featuredQuoteSubtitle => 'تم اختياره بناءً على ما يتردد صداه معك';
 
   @override
-  String get typeQuote => 'Quote';
+  String get typeQuote => 'اقتباس';
 
   @override
-  String get typeRoleModels => 'Role Models';
+  String get typeRoleModels => 'نماذج يحتذى بها';
 
   @override
   String get mockInspireTitle =>
-      'Sometimes clarity arrives\nwhen we stop pushing \nfor it.';
+      'أحيانًا يصل الوضوح\nعندما نتوقف عن الضغط \nمن أجله.';
 
   @override
-  String get mockContextPatience => 'Save during a reflection on patience';
+  String get mockContextPatience => 'حفظ أثناء تأمل في الصبر';
 
   @override
-  String get mockContextQuiet => 'Save after a quite moments';
+  String get mockContextQuiet => 'حفظ بعد لحظات هادئة';
 
   @override
-  String get mockContextAcceptance => 'Save during a reflection on acceptance';
+  String get mockContextAcceptance => 'حفظ أثناء تأمل في القبول';
 
   @override
-  String get whatToLearnToday => 'What do you want to learn today?';
+  String get whatToLearnToday => 'ماذا تريد أن تتعلم اليوم؟';
 
   @override
-  String get innerLearningTitle => 'Inner Learning';
+  String get innerLearningTitle => 'التعلم الداخلي';
 
   @override
-  String get yourPastLearnings => 'Your past Learnings';
+  String get yourPastLearnings => 'تعلمك السابق';
 
   @override
-  String get seeLess => 'See Less';
+  String get seeLess => 'عرض أقل';
 
   @override
-  String get seeMore => 'See More';
+  String get seeMore => 'عرض المزيد';
 
   @override
-  String get suggestionRelationship => 'I want to learn about relationship.';
+  String get suggestionRelationship => 'أريد أن أتعلم عن العلاقات.';
 
   @override
-  String get suggestionSelfReflection =>
-      'I want to learn about self reflection.';
+  String get suggestionSelfReflection => 'أريد أن أتعلم عن التأمل الذاتي.';
 
   @override
-  String get suggestionSelfConfident => 'I want to learn about self confident.';
+  String get suggestionSelfConfident => 'أريد أن أتعلم عن الثقة بالنفس.';
 
   @override
-  String get inputHintRelationship => 'I want to learn about relationship';
+  String get inputHintRelationship => 'أريد أن أتعلم عن العلاقات';
 
   @override
-  String get relationshipLearningTitle => 'Relationship Learning';
+  String get relationshipLearningTitle => 'تعلم العلاقات';
 
   @override
-  String get learnAboutRelationships => 'Learn About Relationships';
+  String get learnAboutRelationships => 'تعلم عن العلاقات';
 
   @override
   String get buildHealthyConnections =>
-      'Build healthy, meaningful, and lasting connections with others.';
+      'ابنِ اتصالات صحية وذات معنى ودائمة مع الآخرين.';
 
   @override
   String get relationshipLearningContent =>
-      'Healthy relationships are built on trust, respect, understanding, and emotional safety. A strong connection does not mean there will be no disagreements — it means both people are willing to communicate openly and solve problems together.\n\nGood communication is the foundation of every meaningful relationship. It involves listening without judgment, expressing feelings honestly, and respecting each other\'s perspective. When both individuals feel heard and valued, the bond becomes stronger.\n\nSetting healthy boundaries is also important. Boundaries are not walls; they are guidelines that protect emotional well-being. They help both people understand what is acceptable and what is not.\n\nIn any relationship, conflicts are normal. What truly matters is how those conflicts are handled. Responding with patience, empathy, and maturity helps maintain trust and emotional stability.\n\nA healthy relationship should make you feel supported, respected, and safe — not anxious or uncertain. Take time to reflect on the kind of connection you want in your life and whether your current relationships align with your values and emotional needs.';
+      'تُبنى العلاقات الصحية على الثقة والاحترام والتفاهم والأمان العاطفي. الاتصال القوي لا يعني أنه لن تكون هناك خلافات - بل يعني أن كلا الشخصين مستعدان للتواصل بوضوح وحل المشكلات معًا.\n\nالتواصل الجيد هو أساس كل علاقة ذات معنى. إنه يتضمن الاستماع دون إصدار أحكام، والتعبير عن المشاعر بصدق، واحترام وجهة نظر الآخر. عندما يشعر كلا الفردين بأنهما مسموعان ومقدران، تصبح الرابطة أقوى.\n\nوضع حدود صحية أمر مهم أيضًا. الحدود ليست جدرانًا؛ إنها إرشادات تحمي الرفاهية العاطفية. إنها تساعد كلا الشخصين على فهم ما هو مقبول وما هو غير مقبول.\n\nفي أي علاقة، النزاعات طبيعية. ما يهم حقًا هو كيف يتم التعامل مع تلك النزاعات. الاستجابة بصبر وتعاطف ونضج تساعد في الحفاظ على الثقة والاستقرار العاطفي.\n\nيجب أن تجعلك العلاقة الصحية تشعر بالدعم والاحترام والأمان - وليس القلق أو عدم اليقين. خذ وقتًا للتأمل في نوع الاتصال الذي تريده في حياتك وما إذا كانت علاقاتك الحالية تتماشى مع قيمك واحتياجاتك العاطفية.';
 
   @override
-  String get april11 => 'April 11';
+  String get april11 => '11 أبريل';
 
   @override
-  String get april10 => 'April 10';
+  String get april10 => '10 أبريل';
 
   @override
-  String get learnAboutSelfReflection => 'Learn About Self Reflection.';
+  String get learnAboutSelfReflection => 'تعلم عن التأمل الذاتي.';
 
   @override
-  String get learnAboutSelfConfident => 'Learn About Self Confident.';
+  String get learnAboutSelfConfident => 'تعلم عن الثقة بالنفس.';
 
   @override
-  String get learnAboutPatience => 'Learn About Patience';
+  String get learnAboutPatience => 'تعلم عن الصبر';
 
   @override
-  String get learnAboutGrowth => 'Learn About Growth';
+  String get learnAboutGrowth => 'تعلم عن النمو';
 
   @override
   String get mockDescPatience =>
-      'You explored how waiting can sometimes feel uncomfortable.';
+      'لقد استكشفت كيف يمكن أن يكون الانتظار غير مريح في بعض الأحيان.';
 
   @override
   String get mockDescGrowth =>
-      'You discovered how small steps lead to meaningful changes.';
+      'لقد اكتشفت كيف تؤدي الخطوات الصغيرة إلى تغييرات ذات مغزى.';
 
   @override
-  String get aMomentToNotice => 'A moment to notice';
+  String get aMomentToNotice => 'لحظة للملاحظة';
 
   @override
-  String get fullNameLabel => 'Full Name';
+  String get fullNameLabel => 'الاسم الكامل';
 
   @override
-  String get yourNameHint => 'Your Name';
+  String get yourNameHint => 'اسمك';
 
   @override
-  String get continueBtn => 'Continue >';
+  String get continueBtn => 'المتابعة >';
 
   @override
-  String get poweredByReflectly => 'Powered by The Reflectly Method.';
+  String get poweredByReflectly => 'مدعوم من طريقة Reflectly.';
 
   @override
-  String get ageRangeQuestion => 'Which age range feels closest to you?';
+  String get ageRangeQuestion => 'أي فئة عمرية تشعر أنها الأقرب إليك؟';
 
   @override
   String get lifeSituationQuestion =>
-      'Which best describes your current life situation?';
+      'أي مما يلي يصف وضعك الحالي في الحياة بشكل أفضل؟';
 
   @override
   String get lifeStageQuestion =>
-      'Which best describes where you are in life right now?';
+      'أي مما يلي يصف أين أنت في الحياة حاليًا بشكل أفضل؟';
 
   @override
-  String get aSpaceToExplore => 'A space to explore';
+  String get aSpaceToExplore => 'مساحة للاستكشاف';
 
   @override
-  String get lifeFeelingQuestion => 'Overall, your life feels mostly...';
+  String get lifeFeelingQuestion => 'بشكل عام، تشعر أن حياتك في الغالب...';
 
   @override
-  String get anIdeaToSitWith => 'An idea to sit with';
+  String get anIdeaToSitWith => 'فكرة للجلوس معها';
 
   @override
   String get faithQuestion =>
-      'Does faith, spirituality, or belief play a role in your life?';
+      'هل يلعب الإيمان أو الروحانية أو المعتقد دورًا في حياتك؟';
 
   @override
   String get inspirationQuestion =>
-      'What voices or sources feel most inspiring or grounding to you?';
+      'أي من الأصوات أو المصادر تشعر أنها تلهمك أكثر بشكل عام؟';
 
   @override
-  String get attentionQuestion =>
-      'What would you like to give attention to today?';
+  String get attentionQuestion => 'ما الذي تود أن توليه اهتمامًا اليوم؟';
 
   @override
-  String get finishBtn => 'Finish';
+  String get finishBtn => 'إنهاء';
 
   @override
-  String get preferNotToSay => 'Prefer not to say';
+  String get preferNotToSay => 'أفضل عدم القول';
 
   @override
-  String get cancelBtn => 'Cancel';
+  String get cancelBtn => 'إلغاء';
 
   @override
-  String get okBtn => 'OK';
+  String get okBtn => 'موافق';
 
   @override
-  String get pleaseSpecifyHint => 'Please specify...';
+  String get pleaseSpecifyHint => 'يرجى التحديد...';
 
   @override
-  String get optSheHer => 'She/Her';
+  String get optSheHer => 'هي/لها';
 
   @override
-  String get optHeHim => 'He/Him';
+  String get optHeHim => 'هو/له';
 
   @override
-  String get optNotToSay => 'Not to say';
+  String get optNotToSay => 'لا أود القول';
 
   @override
-  String get optUnder18 => 'Under 18 years';
+  String get optUnder18 => 'أقل من 18 عامًا';
 
   @override
   String get opt18_24 => '18-24';
@@ -390,107 +383,107 @@ class AppLocalizationsAr extends AppLocalizations {
   String get opt65Plus => '65+';
 
   @override
-  String get optSingle => 'Single';
+  String get optSingle => 'أعزب';
 
   @override
-  String get optMarried => 'Married';
+  String get optMarried => 'متزوج';
 
   @override
-  String get optInRelationship => 'In a Relationship';
+  String get optInRelationship => 'في علاقة';
 
   @override
-  String get optSeparatedDivorced => 'Separated / Divorced';
+  String get optSeparatedDivorced => 'منفصل / مطلق';
 
   @override
-  String get optWidowed => 'Widowed';
+  String get optWidowed => 'أرمل';
 
   @override
-  String get optStudent => 'Student';
+  String get optStudent => 'طالب';
 
   @override
-  String get optWorkingProfessional => 'Working professional';
+  String get optWorkingProfessional => 'محترف عامل';
 
   @override
-  String get optParentCaregiver => 'Parent / caregiver';
+  String get optParentCaregiver => 'والد / مقدم رعاية';
 
   @override
-  String get optSelfEmployed => 'Self-employed / Building something';
+  String get optSelfEmployed => 'يعمل لحسابه / يبني شيئًا';
 
   @override
-  String get optRetired => 'Retired';
+  String get optRetired => 'متقاعد';
 
   @override
-  String get optBusyOverwhelming => 'Busy / overwhelming';
+  String get optBusyOverwhelming => 'مشغول / مرهق';
 
   @override
-  String get optStableHeavy => 'Stable but heavy';
+  String get optStableHeavy => 'مستقر ولكنه ثقيل';
 
   @override
-  String get optBalanced => 'Balanced';
+  String get optBalanced => 'متوازن';
 
   @override
-  String get optUncertain => 'Uncertain';
+  String get optUncertain => 'غير مؤكد';
 
   @override
-  String get optMindfulness => 'Mindfulness';
+  String get optMindfulness => 'اليقظة';
 
   @override
-  String get optQuietDisconnected => 'Quiet but disconnected';
+  String get optQuietDisconnected => 'هادئ ولكنه منفصل';
 
   @override
-  String get optChristianity => 'Christianity';
+  String get optChristianity => 'المسيحية';
 
   @override
-  String get optIslam => 'Islam';
+  String get optIslam => 'الإسلام';
 
   @override
-  String get optJudaism => 'Judaism';
+  String get optJudaism => 'اليهودية';
 
   @override
-  String get optBuddhism => 'Buddhism';
+  String get optBuddhism => 'البوذية';
 
   @override
-  String get optHinduism => 'Hinduism';
+  String get optHinduism => 'الهندوسية';
 
   @override
-  String get optAnotherFaith => 'Another faith or spiritual path';
+  String get optAnotherFaith => 'إيمان أو مسار روحي آخر';
 
   @override
-  String get optNonReligious => 'I prefer non-religious inspiration';
+  String get optNonReligious => 'أفضل إلهامًا غير ديني';
 
   @override
-  String get optSacredTexts => 'Sacred or spiritual texts';
+  String get optSacredTexts => 'النصوص المقدسة أو الروحية';
 
   @override
-  String get optSpiritualTeachers => 'Spiritual teachers or scholars';
+  String get optSpiritualTeachers => 'المعلمون الروحانيون';
 
   @override
-  String get optPublicFigures => 'Public figures or role models';
+  String get optPublicFigures => 'الشخصيات العامة أو النماذج يحتذى بها';
 
   @override
-  String get optWritersBooks => 'Writers or books';
+  String get optWritersBooks => 'الكتاب أو الكتب';
 
   @override
-  String get optArtistsCreators => 'Artists, creators, or influencers';
+  String get optArtistsCreators => 'الفنانون أو المبدعون';
 
   @override
-  String get optNameSpecific => 'Name specific people, books, or voices';
+  String get optNameSpecific => 'تسمية أشخاص أو كتب معينة';
 
   @override
-  String get optSomethingCarrying => 'Something I\'ve been carrying';
+  String get optSomethingCarrying => 'شيء أحمله معي';
 
   @override
-  String get optFeelingNotUnderstand => 'A feeling I don\'t fully understand';
+  String get optFeelingNotUnderstand => 'شعور لا أفهمه بالكامل';
 
   @override
-  String get optSituationInLife => 'A situation in my life';
+  String get optSituationInLife => 'موقف في حياتي';
 
   @override
-  String get optPatternNoticed => 'A pattern I\'ve noticed';
+  String get optPatternNoticed => 'نمط لاحظته';
 
   @override
-  String get optDontKnowWantSpace => 'I don\'t know yet — I just want space';
+  String get optDontKnowWantSpace => 'لا أعرف بعد - أريد فقط مساحة';
 
   @override
-  String get optOther => 'Other';
+  String get optOther => 'أخرى';
 }

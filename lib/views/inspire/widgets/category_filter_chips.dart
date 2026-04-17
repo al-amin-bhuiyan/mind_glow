@@ -20,33 +20,38 @@ class CategoryFilterChips extends StatelessWidget {
     return Obx(() {
       if (controller.categories.isEmpty) return const SizedBox.shrink();
 
-      return Wrap(
-        spacing: 12.w,
-        runSpacing: 10.h,
-        alignment: WrapAlignment.start,
-        children: controller.categories.map((categoryKey) {
-          return Container(
-            padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 6.h),
-            decoration: ShapeDecoration(
-              color: const Color(0x33896D16),
-              shape: RoundedRectangleBorder(
-                side: BorderSide(
-                  width: 1.w,
-                  color: const Color(0x66896D16),
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: controller.categories.map((categoryKey) {
+            return Padding(
+              padding: EdgeInsets.only(right: 12.w),
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 11.w, vertical: 6.h),
+                decoration: ShapeDecoration(
+                  color: const Color(0x33896D16),
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      width: 1.w,
+                      color: const Color(0x66896D16),
+                    ),
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(100.r),
+                child: Text(
+                  categoryKey,
+                  textAlign: TextAlign.center,
+                  style: AppFonts.manropeSemiBold(
+                    fontSize: 12.sp,
+                    color: const Color(0xFF1E1E1E),
+                  ),
+                ),
               ),
-            ),
-            child: Text(
-              categoryKey,
-              textAlign: TextAlign.center,
-              style: AppFonts.manropeSemiBold(
-                fontSize: 9.sp,
-                color: const Color(0xFF1E1E1E),
-              ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       );
     });
   }

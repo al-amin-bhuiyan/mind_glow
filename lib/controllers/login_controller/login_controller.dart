@@ -25,10 +25,10 @@ class LoginController extends GetxController {
 
   // Text editing controllers
   final TextEditingController emailController = TextEditingController(
-    text: 'admin@gmail.com',
+
   );
   final TextEditingController passwordController = TextEditingController(
-    text: 'admin123',
+
   );
 
   // Observable states

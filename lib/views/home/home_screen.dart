@@ -344,7 +344,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: 9.h),
-          _buildJourneyStats(controller, context),
+          _buildJourneyStats(context),
           SizedBox(height: 16.h),
           _buildInspirationCard(controller, context),
         ],
@@ -353,23 +353,25 @@ class HomeScreen extends StatelessWidget {
   }
 
   /// Build journey stats row
-  Widget _buildJourneyStats(HomeController controller, BuildContext context) {
+  Widget _buildJourneyStats(BuildContext context) {
+    // using find to get the controller inside the stats row natively
+    final controller = Get.find<HomeController>();
     return Obx(() => Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         _buildStatItem(
           icon: CustomAssets.seven_reflections_written,
-          text: '${controller.reflectionsCount.value} reflections\nwritten',
+          text: AppLocalizations.of(context)!.reflectionsWrittenStat(controller.reflectionsCount.value).replaceAll(' reflections ', ' reflections\n').replaceAll(' تأملات ', ' تأملات\n'),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: 6.w),
         _buildStatItem(
           icon: CustomAssets.three_themes_explored,
-          text: '${controller.learningsCount.value} themes\nexplored',
+          text: AppLocalizations.of(context)!.themesExploredStat(controller.learningsCount.value).replaceAll(' themes ', ' themes\n').replaceAll(' مواضيع ', ' مواضيع\n'),
         ),
-        SizedBox(width: 16.w),
+        SizedBox(width: 6.w),
         _buildStatItem(
           icon: CustomAssets.reflected_over_6_days,
-          text: 'Reflected\nover ${controller.activeReflectionDays.value} days',
+          text: AppLocalizations.of(context)!.reflectedDaysStat(controller.activeReflectionDays.value).replaceAll('Reflected over ', 'Reflected\nover ').replaceAll('انعكست على', 'انعكست\nعلى'),
         ),
       ],
     ));
@@ -378,31 +380,53 @@ class HomeScreen extends StatelessWidget {
   /// Build individual stat item
   Widget _buildStatItem({required String icon, required String text}) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Circular icon container
         Container(
-          width: 28.w,
-          height: 28.h,
-          padding: EdgeInsets.all(1.w),
+          width: 30.w,
+          height: 30.h,
+          padding: EdgeInsets.all(3.w),
           decoration: ShapeDecoration(
             color: const Color(0x4CC3A95E),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(100.r),
             ),
           ),
-          child: SvgPicture.asset(
-            icon,
-            width: 24.w,
-            height: 24.h,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 24.w,
+                height: 24.h,
+                child: SvgPicture.asset(
+                  icon,
+                  width: 24.w,
+                  height: 24.h,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
           ),
         ),
-        SizedBox(width: 2.w),
-        Text(
-          text,
-          style: TextStyle(
-            color: const Color(0xFF1E1E1E),
-            fontSize: 11.sp,
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.w400,
+
+        SizedBox(width: 4.w),
+
+        // Text label
+        SizedBox(
+          width: 65.w,
+          child: Text(
+            text,
+            style: TextStyle(
+              color: const Color(0xFF1E1E1E),
+              fontSize: 11.sp,
+              fontFamily: 'Manrope',
+              fontWeight: FontWeight.w400,
+            ),
           ),
         ),
       ],

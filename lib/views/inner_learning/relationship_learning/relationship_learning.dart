@@ -9,6 +9,7 @@ import 'relationship_learning_controller.dart';
 import '../../../models/learning_model.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter/services.dart';
 
 class RelationshipLearningScreen extends StatelessWidget {
   const RelationshipLearningScreen({super.key});
@@ -20,48 +21,58 @@ class RelationshipLearningScreen extends StatelessWidget {
     // Obtain incoming real API model or default
     final LearningModel? learningArgs = GoRouterState.of(context).extra as LearningModel?;
 
-    return Scaffold(
-      extendBody: true,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(CustomAssets.backgroundimage),
-            fit: BoxFit.cover,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          FocusManager.instance.primaryFocus?.unfocus();
+          SystemChannels.textInput.invokeMethod('TextInput.hide');
+          controller.goBack(context);
+        }
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(CustomAssets.backgroundimage),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Custom App Bar
-              _buildAppBar(controller),
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Custom App Bar
+                _buildAppBar(controller),
 
-              // Non-scrollable Content
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 26.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      //    SizedBox(height: 8.h),
+                // Non-scrollable Content
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 26.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //    SizedBox(height: 8.h),
 
-                      // Title Section
-                      _buildTitleSection(context, learningArgs),
+                        // Title Section
+                        _buildTitleSection(context, learningArgs),
 
-                      SizedBox(height: 24.h),
+                        SizedBox(height: 24.h),
 
-                      // Content Card (Scrollable inside)
-                      Expanded(
-                        child: _buildContentCard(context, learningArgs),
-                      ),
+                        // Content Card (Scrollable inside)
+                        Expanded(
+                          child: _buildContentCard(context, learningArgs),
+                        ),
 
-                      SizedBox(height: 40.h),
-                    ],
+                        SizedBox(height: 40.h),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -82,7 +93,11 @@ class RelationshipLearningScreen extends StatelessWidget {
         child: Row(
           children: [
             CustomBackButton(
-              onPressed: () => controller.goBack(context),
+              onPressed: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                SystemChannels.textInput.invokeMethod('TextInput.hide');
+                controller.goBack(context);
+              },
               backgroundColor: Colors.black.withValues(alpha: 0.10),
               color: Colors.black,
               size: 24,

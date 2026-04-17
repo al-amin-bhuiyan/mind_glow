@@ -13,7 +13,9 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>mind_glow</string>
+		<string>Mind Glow</string>
+		<key>CFBundleDisplayName</key>
+		<string>Mind Glow</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>

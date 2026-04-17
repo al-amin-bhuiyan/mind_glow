@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../../utils/app_fonts.dart';
+import '../../../../utils/app_constants.dart';
 import '../../../../widgets/custom_assets.dart';
 import '../../../../widgets/custom_back_button.dart';
 import '../../../../widgets/custom_button.dart';
@@ -51,36 +53,110 @@ class EditProfileScreen extends StatelessWidget {
 
                         SizedBox(height: 32.h),
 
-                        // Email Field
+                        // Full Name Field
                         _buildTextField(
-                          label: 'Email',
-                          controller: controller.emailController,
-                          hintText: 'emma.wilson@gmail.com',
-                          keyboardType: TextInputType.emailAddress,
+                          label: 'Full Name',
+                          controller: controller.fullNameController,
+                          hintText: 'Emma Wilson',
                         ),
 
                         SizedBox(height: 24.h),
 
-                        // First Name Field
-                        _buildTextField(
-                          label: 'First Name',
-                          controller: controller.firstNameController,
-                          hintText: 'Emma',
-                        ),
-
+                        // Pop-up Menu Fields
+                        Obx(() => _buildDropdownField(
+                              label: 'Pronouns',
+                              value: controller.selectedPronoun.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Pronouns',
+                                controller.pronounOptions,
+                                controller.selectedPronoun,
+                              ),
+                            )),
                         SizedBox(height: 24.h),
 
-                        // Last Name Field
-                        _buildTextField(
-                          label: 'Last Name',
-                          controller: controller.lastNameController,
-                          hintText: 'Wilson',
-                        ),
-
+                        Obx(() => _buildDropdownField(
+                              label: 'Age Group',
+                              value: controller.selectedAgeRange.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Age Group',
+                                controller.ageRangeOptions,
+                                controller.selectedAgeRange,
+                              ),
+                            )),
                         SizedBox(height: 24.h),
 
-                        // Change Email Option
-                        _buildChangeEmailOption(context),
+                        Obx(() => _buildDropdownField(
+                              label: 'Life Situation',
+                              value: controller.selectedLifeSituation.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Life Situation',
+                                controller.lifeSituationOptions,
+                                controller.selectedLifeSituation,
+                              ),
+                            )),
+                        SizedBox(height: 24.h),
+
+                        Obx(() => _buildDropdownField(
+                              label: 'Occupation',
+                              value: controller.selectedLifeStage.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Occupation',
+                                controller.lifeStageOptions,
+                                controller.selectedLifeStage,
+                              ),
+                            )),
+                        SizedBox(height: 24.h),
+
+                        Obx(() => _buildDropdownField(
+                              label: 'Life Feelings',
+                              value: controller.selectedLifeFeeling.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Life Feelings',
+                                controller.lifeFeelingOptions,
+                                controller.selectedLifeFeeling,
+                              ),
+                            )),
+                        SizedBox(height: 24.h),
+
+                        Obx(() => _buildDropdownField(
+                              label: 'Faith',
+                              value: controller.selectedFaith.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Faith',
+                                controller.faithOptions,
+                                controller.selectedFaith,
+                              ),
+                            )),
+                        SizedBox(height: 24.h),
+
+                        Obx(() => _buildDropdownField(
+                              label: 'Inspiration Sources',
+                              value: controller.selectedInspirationSource.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Inspiration Sources',
+                                controller.inspirationSourceOptions,
+                                controller.selectedInspirationSource,
+                              ),
+                            )),
+                        SizedBox(height: 24.h),
+
+                        Obx(() => _buildDropdownField(
+                              label: 'Attention Today',
+                              value: controller.selectedAttentionArea.value,
+                              onTap: () => controller.showSelectionBottomSheet(
+                                context,
+                                'Attention Today',
+                                controller.attentionAreaOptions,
+                                controller.selectedAttentionArea,
+                              ),
+                            )),
 
                         SizedBox(height: 40.h),
 
@@ -153,12 +229,49 @@ class EditProfileScreen extends StatelessWidget {
                   color: Colors.white,
                   width: 3.w,
                 ),
-                image: DecorationImage(
-                  image: controller.selectedImage.value != null
-                      ? FileImage(controller.selectedImage.value!)
-                      : AssetImage(CustomAssets.person_image) as ImageProvider,
-                  fit: BoxFit.cover,
-                ),
+              ),
+              child: ClipOval(
+                child: controller.selectedImage.value != null
+                    ? Image.file(
+                        controller.selectedImage.value!,
+                        fit: BoxFit.cover,
+                      )
+                    : controller.profileImagePath.value.isNotEmpty
+                        ? Image.network(
+                            controller.profileImagePath.value.startsWith('http')
+                                ? controller.profileImagePath.value
+                                : '${AppConstants.baseUrl.replaceAll(RegExp(r'/v1/?$'), '')}${controller.profileImagePath.value}',
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: LoadingAnimationWidget.threeArchedCircle(
+                                  color: const Color(0xFFC39D4C),
+                                  size: 30.sp,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                CustomAssets.person_image,
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                        : controller.isLoading.value
+                            ? Container(
+                                color: Colors.white,
+                                child: Center(
+                                  child: LoadingAnimationWidget.threeArchedCircle(
+                                    color: const Color(0xFFC39D4C),
+                                    size: 30.sp,
+                                  ),
+                                ),
+                              )
+                            : Image.asset(
+                                CustomAssets.person_image,
+                                fit: BoxFit.cover,
+                              ),
               ),
             ),
           ),
@@ -246,8 +359,8 @@ class EditProfileScreen extends StatelessWidget {
               ),
               filled: false,
               contentPadding: EdgeInsets.symmetric(
-                horizontal: 16.w,
-                vertical: 14.h,
+                horizontal: 24.w,
+                vertical: 15.h,
               ),
             ),
           ),
@@ -256,37 +369,54 @@ class EditProfileScreen extends StatelessWidget {
     );
   }
 
-  /// Build Change Email Option
-  Widget _buildChangeEmailOption(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // TODO: Implement change email functionality
-        print('Change Email tapped');
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(8.r),
+  /// Build Dropdown Field
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppFonts.poppinsSemiBold(
+            fontSize: 14,
+            color: Colors.black,
+          ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Change Email',
-              style: AppFonts.poppinsRegular(
-                fontSize: 16.sp,
-                color: Colors.black.withValues(alpha: 0.6),
-              ),
+        SizedBox(height: 8.h),
+        GestureDetector(
+          onTap: onTap,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 15.h),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16.r),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.black,
-              size: 24.sp,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  value.isNotEmpty ? value : 'Select $label',
+                  style: AppFonts.poppinsRegular(
+                    fontSize: 16,
+                    color: value.isNotEmpty
+                        ? Colors.black.withValues(alpha: 0.6)
+                        : Colors.black.withValues(alpha: 0.3),
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.black.withValues(alpha: 0.6),
+                  size: 24.sp,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 

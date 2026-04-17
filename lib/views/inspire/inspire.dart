@@ -11,6 +11,7 @@ import 'widgets/category_filter_chips.dart';
 import 'widgets/featured_quote_card.dart';
 import 'widgets/inspiration_card.dart';
 import 'widgets/video_thumbnail_card.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 /// Inspire Screen - Displays inspirational content
 /// Follows clean architecture and OOP principles
@@ -270,6 +271,15 @@ class InspireScreen extends StatelessWidget {
 
         // Inspiration cards grid
         Obx(() {
+          if (controller.isLoadingSavedInspirations.value && controller.savedInspirations.isEmpty) {
+            return Center(
+              child: LoadingAnimationWidget.beat(
+                color: const Color(0xFFC39D4C),
+                size: 40.sp,
+              ),
+            );
+          }
+
           final items = controller.savedInspirations;
           if (items.isEmpty) return const SizedBox.shrink();
 
@@ -322,11 +332,11 @@ class InspireScreen extends StatelessWidget {
                     style: TextButton.styleFrom(
                       foregroundColor: const Color(0xFF5D4708),
                     ),
-                    child: Text(
-                      controller.showAllQuotes.value 
-                          ? 'Show less' 
-                          : 'Show more',
-                      style: AppFonts.manropeSemiBold(
+                      child: Text(
+                        controller.showAllQuotes.value 
+                            ? AppLocalizations.of(context)!.seeLess
+                            : AppLocalizations.of(context)!.seeMore,
+                        style: AppFonts.manropeSemiBold(
                         fontSize: 14.sp,
                       ),
                     ),

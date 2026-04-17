@@ -8,14 +8,16 @@ import '../../views/profile/widgets/logout_dialog.dart';
 import '../../services/auth_state_service.dart';
 import '../../services/token_storage_service.dart';
 import '../../services/session_data_isolation_service.dart';
-// removed custom_snackbar.dart
+import '../../services/auth_service.dart';
+import '../home_controller/home_controller.dart';
+import '../reflect_controller/reflect_controller.dart';
 
 /// Controller for Profile Screen - handles profile actions and navigation
 class ProfileController extends GetxController {
   // Observable states
-  final RxBool isLoading = false.obs;
-  final RxString userName = 'Emma Wilson'.obs;
-  final RxString userEmail = 'emma.wilson@gmail.com'.obs;
+  final RxBool isLoading = true.obs;
+  final RxString userName = ''.obs;
+  final RxString userEmail = ''.obs;
   final RxString userImage = ''.obs;
 
   @override
@@ -26,35 +28,46 @@ class ProfileController extends GetxController {
   }
 
   /// Load user data
-  void _loadUserData() {
-    // TODO: Implement user data loading from local storage or API
-    // For now, using demo data
+  Future<void> _loadUserData({bool showLoading = true}) async {
+    try {
+      if (showLoading) isLoading.value = true;
+      final token = await TokenStorageService.instance.getAccessToken();
+      final response = await AuthService.instance.getUserProfile(token: token);
+
+      if (response.success && response.data != null) {
+        final data = response.data!;
+        userName.value = data.fullName;
+        userEmail.value = data.email;
+        userImage.value = data.profilePicture ?? '';
+        
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().updateUserName(data.fullName);
+        }
+        
+        if (Get.isRegistered<ReflectController>()) {
+          Get.find<ReflectController>().userProfilePicture.value = data.profilePicture ?? '';
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading user data: $e');
+    } finally {
+      if (showLoading) isLoading.value = false;
+    }
   }
 
   /// Handle Edit Profile tap
-  void onEditProfileTap(BuildContext context) {
+  Future<void> onEditProfileTap(BuildContext context) async {
     // Navigate to edit profile screen with current user data using GoRouter
-    context.push(
+    await context.push(
       AppPath.editProfile,
       extra: {
         'email': userEmail.value,
-        'firstName': _getFirstName(),
-        'lastName': _getLastName(),
-        'imagePath': userImage.value,
+        'full_name': userName.value,
+        'profile_picture': userImage.value,
       },
     );
-  }
-
-  /// Get first name from full name
-  String _getFirstName() {
-    final nameParts = userName.value.split(' ');
-    return nameParts.isNotEmpty ? nameParts[0] : '';
-  }
-
-  /// Get last name from full name
-  String _getLastName() {
-    final nameParts = userName.value.split(' ');
-    return nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+    // Reload user data silently when returning
+    await _loadUserData(showLoading: false);
   }
 
   /// Handle Subscription tap

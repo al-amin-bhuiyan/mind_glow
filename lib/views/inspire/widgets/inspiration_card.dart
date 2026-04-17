@@ -2,14 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:info_popup/info_popup.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:mind_glow/l10n/app_localizations.dart';
+import 'package:mind_glow/utils/app_colors.dart';
 import '../../../controllers/inspire_controller/inspire_controller.dart';
 import '../../../utils/app_fonts.dart';
 import '../../../widgets/custom_assets.dart';
 
 /// Inspiration Card Widget
 /// Displays saved inspiration item with bookmark functionality
-class InspirationCard extends StatelessWidget {
+class InspirationCard extends StatefulWidget {
   final InspirationItem inspiration;
   final VoidCallback onTap;
   final VoidCallback onBookmarkTap;
@@ -22,6 +24,27 @@ class InspirationCard extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<InspirationCard> createState() => _InspirationCardState();
+}
+
+class _InspirationCardState extends State<InspirationCard> {
+  late bool isBookmarked;
+
+  @override
+  void initState() {
+    super.initState();
+    isBookmarked = widget.inspiration.isBookmarked;
+  }
+
+  @override
+  void didUpdateWidget(InspirationCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.inspiration.isBookmarked != widget.inspiration.isBookmarked) {
+      isBookmarked = widget.inspiration.isBookmarked;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,7 +52,7 @@ class InspirationCard extends StatelessWidget {
         // Card container
         Expanded(
           child: InfoPopupWidget(
-            key: ValueKey(inspiration.id),
+            key: ValueKey(widget.inspiration.id),
             customContent: () => Container(
               width: 250.w,
               padding: EdgeInsets.all(16.w),
@@ -49,19 +72,19 @@ class InspirationCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _getLocalized(context, inspiration.title),
+                    _getLocalized(context, widget.inspiration.title),
                     style: AppFonts.manropeMedium(
                       fontSize: 14.sp,
                       color: const Color(0xFF1E1E1E),
                       height: 1.5,
                     ),
                   ),
-                  if (inspiration.author != null && inspiration.author!.isNotEmpty) ...[
+                  if (widget.inspiration.author != null && widget.inspiration.author!.isNotEmpty) ...[
                     SizedBox(height: 12.h),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Text(
-                        "- ${inspiration.author!}",
+                        "- ${widget.inspiration.author!}",
                         style: AppFonts.manropeBold(
                           fontSize: 12.sp,
                           color: const Color(0xFF5D4708),
@@ -119,10 +142,10 @@ class InspirationCard extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          _getLocalized(context, inspiration.typeLabel),
+                          _getLocalized(context, widget.inspiration.typeLabel),
                           textAlign: TextAlign.center,
                           style: AppFonts.manropeRegular(
-                            fontSize: 9.sp,
+                            fontSize: 12.sp,
                             color: const Color(0xFF1E1E1E),
                           ),
                         ),
@@ -130,13 +153,40 @@ class InspirationCard extends StatelessWidget {
 
                       // Bookmark icon
                       GestureDetector(
-                        onTap: onBookmarkTap,
+                        onTap: () {
+                          if (isBookmarked) {
+                            AwesomeDialog(
+                              context: context,
+                              dialogType: DialogType.warning,
+                              animType: AnimType.bottomSlide,
+                              dialogBackgroundColor: AppColors.whiteColor,
+                              title: 'Want to delete?',
+                              desc: 'Are you sure you want to remove this from your favorites?',
+                              btnCancelOnPress: () {},
+                              btnOkOnPress: () {
+                                setState(() {
+                                  isBookmarked = false;
+                                });
+                                widget.onBookmarkTap();
+                              },
+                              btnOkText: 'Delete',
+                              btnOkColor: Colors.red,
+                              btnCancelText: 'No',
+                              btnCancelColor: const Color(0xFF5D4708),
+                            ).show();
+                          } else {
+                            setState(() {
+                              isBookmarked = true;
+                            });
+                            widget.onBookmarkTap();
+                          }
+                        },
                         child: SvgPicture.asset(
-                          inspiration.isBookmarked
+                          isBookmarked
                               ? CustomAssets.book_mark_icon_marked
                               : CustomAssets.book_mark_icon_not_marked,
-                          width: 16.w,
-                          height: 16.h,
+                          width: 20.w,
+                          height: 20.h,
                         ),
                       ),
                     ],
@@ -146,19 +196,21 @@ class InspirationCard extends StatelessWidget {
 
                   // Title text
                   Text(
-                    _getLocalized(context, inspiration.title),
+                    _getLocalized(context, widget.inspiration.title),
                     maxLines: 5,
                     overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.justify,
                     style: AppFonts.manropeRegular(
                       fontSize: 13.sp,
                       color: const Color(0xFF1E1E1E),
+                      height: 1.4,
                     ),
                   ),
                   
-                  if (inspiration.author != null && inspiration.author!.isNotEmpty) ...[
+                  if (widget.inspiration.author != null && widget.inspiration.author!.isNotEmpty) ...[
                     SizedBox(height: 8.h),
                     Text(
-                      "- ${inspiration.author!}",
+                      "- ${widget.inspiration.author!}",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppFonts.manropeMedium(
@@ -173,14 +225,14 @@ class InspirationCard extends StatelessWidget {
           ),
         ),
 
-        if (inspiration.savedContext.isNotEmpty) ...[
+        if (widget.inspiration.savedContext.isNotEmpty) ...[
           SizedBox(height: 8.h),
 
           // Saved context
           SizedBox(
             width: double.infinity,
             child: Text(
-              _getLocalized(context, inspiration.savedContext),
+              _getLocalized(context, widget.inspiration.savedContext),
               style: AppFonts.manropeMedium(
                 fontSize: 9.sp,
                 color: const Color(0xFF78706B),

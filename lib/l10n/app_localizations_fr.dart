@@ -499,7 +499,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get optSituationInLife => 'Une situation dans ma vie';
 
   @override
-  String get optPatternNoticed => 'Un schéma que j\'ai remarqué';
+  String get optPatternNoticed => 'Un schma que j\'ai remarqu';
 
   @override
   String get optDontKnowWantSpace =>
